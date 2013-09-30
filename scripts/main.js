@@ -5,10 +5,6 @@ eval(fs.readFileSync('scripts/helper/util.js')+'');
 eval(fs.readFileSync('scripts/testing.js')+'');
 
 
-console.log("here");
-
-console.log("got " + spectralnorm(10));
-
 var jobs = new Array();
 spectTrue = spectralnorm(10);
 
