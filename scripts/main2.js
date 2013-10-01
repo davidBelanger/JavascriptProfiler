@@ -14,11 +14,15 @@ for(i = 0; i < tests.length; i++){
     var file = t[0];
     var driverFunction = t[1];
     var input = t[2];
-    
-    eval(fs.readFileSync(file)+'');
+
+    var inputScriptString = fs.readFileSync(file)+''
+    eval(inputScriptString);
     var output = eval(driverFunction + "(" + input + ")");
     console.log('got ' + output + " for " + file);
-
+    
+    //todo: now transform inputScriptString and make sure you get the same output
+    
+    
 }
 
 
