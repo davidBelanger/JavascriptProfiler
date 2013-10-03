@@ -8,6 +8,7 @@ eval(fs.readFileSync('scripts/testing.js')+'');
 tests = new Array()
 tests.push(new Array('scripts/tests/nbody.js','runNBody',10))
 tests.push(new Array('scripts/tests/spect.js','spectralnorm',10))
+tests.push(new Array('scripts/tests/fannkuch.js','testFannKuch',5))
 
 for(i = 0; i < tests.length; i++){
     var t = tests[i];
