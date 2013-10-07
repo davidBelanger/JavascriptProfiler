@@ -1,7 +1,6 @@
 
 var globalStack = Array();
 globalStack.push("root");
-setInterval(function (){console.log("periodic")},100);
 
 
 class Profile{
@@ -12,13 +11,15 @@ class Profile{
     }
     public start(): void{
     	this.startTime = new Date().getTime();
-
+	console.log("starting at " + this.startTime)
         var idx =  globalStack.push(name);
 	var parentName = globalStack[idx - 2];	
-	console.log("starting " + name + ", called from " + parentName);
+	console.log("starting " + name + ", called from " + parentName );
     }
     public end(): void {
-        var timeElapsed = new Date().getTime()  - this.startTime;
+    	var endTime = new Date().getTime()
+    	console.log("start = " + this.startTime + " end = " + endTime )
+        var timeElapsed = endTime  - this.startTime;
         globalStack.pop();
 	console.log("ending " + name + " in time: " + timeElapsed);
     }
@@ -29,27 +30,38 @@ class Profile{
 function F(n) {
     this.name = 'F';
     this.profile = new Profile(this.name); 
-    function run(n) {
+
     this.profile.start();
-    var toReturn = n + 5;
+    
+    var toReturn =  FRecursive(n)  ; 
+
     this.profile.end();
     return toReturn;
- }
- return run(n);
+}
+
+
+function FRecursive(n){
+    if(n == 0){ 
+    var toReturn =  0
+    } 
+    else{
+	var toReturn = setTimeout (function (n) {return FRecursive(n - 1)  + 2;},1000);
+    } 
+    return toReturn;
 }
 
 
 function run(n): void{
     this.name = 'run';
     this.profile = new Profile(this.name);
-    function run2(n){
+
     this.profile.start();
-         for(var i = 0; i < n; i++){
-     	     console.log(F(i))
-    	}
-    this.profile.end();
- }
- run2(n)
+    for(var i = 0; i < n; i++){
+  	console.log(F(i))
+   }
+   this.profile.end();
+ 
+ 
 }
 
 
@@ -57,12 +69,11 @@ function driver(): void  {
 	 this.name = 'driver';
 	 this.profile = new Profile(this.name);
 	 this.profile.start()
-	 function run3(): void {
 	 	  run(6);
 		  console.log('did');
 		  run(7);
-	 }
-	 run3();	 
+
+         this.profile.end();	 
 }
 
 driver();
