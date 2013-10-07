@@ -1,20 +1,26 @@
 
 var globalStack = Array();
 globalStack.push("root");
+setInterval(function (){console.log("periodic")},100);
+
 
 class Profile{
     private name: string;
-
+    private startTime: number;
     constructor(n: string){
     	name = n;
     }
     public start(): void{
+    	this.startTime = new Date().getTime();
+
         var idx =  globalStack.push(name);
 	var parentName = globalStack[idx - 2];	
 	console.log("starting " + name + ", called from " + parentName);
     }
     public end(): void {
-	console.log("ending " + name);
+        var timeElapsed = new Date().getTime()  - this.startTime;
+        globalStack.pop();
+	console.log("ending " + name + " in time: " + timeElapsed);
     }
 }
 
@@ -22,7 +28,7 @@ class Profile{
 
 function F(n) {
     this.name = 'F';
-    this.profile = new Profile(this.name);
+    this.profile = new Profile(this.name); 
     function run(n) {
     this.profile.start();
     var toReturn = n + 5;
