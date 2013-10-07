@@ -33,22 +33,20 @@ function F(n) {
 
     this.profile.start();
     
-    var toReturn =  FRecursive(n)  ; 
+    var toReturn =  1;
+    for(var j = 0; j < 1000000*n; j++){
+    	    if(j % 2 == 1){
+    	    	 toReturn += Math.sqrt(j);
+		 }
+		else{
+		toReturn -= Math.sqrt(j);
+		}
 
+    }
     this.profile.end();
     return toReturn;
 }
 
-
-function FRecursive(n){
-    if(n == 0){ 
-    var toReturn =  0
-    } 
-    else{
-	var toReturn = setTimeout (function (n) {return FRecursive(n - 1)  + 2;},1000);
-    } 
-    return toReturn;
-}
 
 
 function run(n): void{
