@@ -3,6 +3,7 @@ var fs = require('fs');
 // file is included here:
 //eval(fs.readFileSync('scripts/helper/util.js')+'');
 eval(fs.readFileSync('scripts/testing.js')+'');
+eval(fs.readFileSync('scripts/profile.js')+'');
 
 
 tests = new Array()
@@ -17,7 +18,8 @@ for(i = 0; i < tests.length; i++){
     var input = t[2];
 
     var inputScriptString = fs.readFileSync(file)+'';
-    var modifiedSource = inputScriptString; //todo: modify it to be instrumented
+	var prof = new Profiler(file);
+    var modifiedSource = prof.mod_code; //todo: modify it to be instrumented
     
     var sourceStrings = new Array(inputScriptString,modifiedSource);
     var results = new Array;

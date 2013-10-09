@@ -3,9 +3,37 @@ var esprima = require("esprima");
 var escodegen = require("escodegen");
 var fs = require('fs');
 
+var globalStack = Array();
+globalStack.push("root");
+
+
+class Profile{
+    private name: string;
+    private startTime: number;
+    constructor(n: string){
+    	name = n;
+    }
+    public start(): void{
+    	this.startTime = new Date().getTime();
+	console.log("starting at " + this.startTime)
+        var idx =  globalStack.push(name);
+	var parentName = globalStack[idx - 2];	
+	console.log("starting " + name + ", called from " + parentName );
+    }
+    public end(): void {
+    	var endTime = new Date().getTime()
+    	console.log("start = " + this.startTime + " end = " + endTime )
+        var timeElapsed = endTime  - this.startTime;
+        globalStack.pop();
+	console.log("ending " + name + " in time: " + timeElapsed);
+    }
+}
+
+
+
 // profiler class that modifes the code and containes various 
 // program statistics
-class profiler {
+class Profiler {
 	mod_code : string;
 	constructor(orig_code){
 		var prog_tree = esprima.parse(fs.readFileSync(orig_code));
@@ -42,23 +70,25 @@ function modify_func(node){
 	if(node["type"] == "FunctionDeclaration")
 	{
 		var fname = node["id"]["name"]
-		//TODO: Insert muliple lines
-		var ent_code = "console.log(\"Entering " + fname + "\");"
-		var ex_code = "console.log(\"Exiting " + fname + "\");"
-		node["body"]["body"].unshift(esprima.parse(ent_code)["body"][0])
-		node["body"]["body"].push(esprima.parse(ex_code)["body"][0])
+		var ent_code = "var fun_prof = new Profile(\""+fname+"\");fun_prof.start();"
+		var ex_code = "fun_prof.end();"
+		node["body"]["body"] = esprima.parse(ent_code)["body"].concat(node["body"]["body"],esprima.parse(ex_code)["body"])
 	}
 	// If node is a function expression 
 	// insert enter code at the beginning and 
 	// exit code at the end.
 	else if(node["type"] == "FunctionExpression")
 	{
+		var fname : any;
+		fname = "anon func";
 		//mod exp
-		//TODO: Insert muliple lines
-		var ent_code = "console.log(\"Entering Function Expression\");"
-		var ex_code = "console.log(\"Exiting Function Expression\");"
-		node["body"]["body"].unshift(esprima.parse(ent_code)["body"][0])
-		node["body"]["body"].push(esprima.parse(ex_code)["body"][0])
+		if(node["id"] != null)
+		{
+			var fname = node["id"]["name"];
+		}
+		var ent_code = "var fun_prof = new Profile(\""+fname+"\");fun_prof.start();";
+		var ex_code = "fun_prof.end();";
+		node["body"]["body"] = esprima.parse(ent_code)["body"].concat(node["body"]["body"],esprima.parse(ex_code)["body"]);
 	}
 	// If node is a return statement, store the return value 
 	// (possibly null) to profile_tmp, execute exit code 
@@ -80,7 +110,7 @@ function modify_func(node){
                         ],
                         "kind": "var"
                     })
-		node["body"].push(esprima.parse("console.log(\"Exiting Function\");")["body"][0])
+		node["body"].push(esprima.parse("fun_prof.end();")["body"][0])
 		node["body"].push({
 							"type": "ReturnStatement",
 							"argument": {
@@ -98,24 +128,24 @@ function modify_func(node){
 //*********************************************
 
 // prints function name if called statically
-function print_func_name(node){
-    if(node["type"] == "CallExpression")
-	{
-		var callee = node["callee"];
-		if(callee["type"] == "MemberExpression")
-		{
-			console.log(callee["object"]["name"] + "." + callee["property"]["name"]);
-		}
-		if(callee["type"] == "Identifier")
-		{
-			console.log(callee["name"]);
-		}
-	}
-}
+// function print_func_name(node){
+    // if(node["type"] == "CallExpression")
+	// {
+		// var callee = node["callee"];
+		// if(callee["type"] == "MemberExpression")
+		// {
+			// console.log(callee["object"]["name"] + "." + callee["property"]["name"]);
+		// }
+		// if(callee["type"] == "Identifier")
+		// {
+			// console.log(callee["name"]);
+		// }
+	// }
+// }
 
-var filename = "scripts/fun_defs.js"
-var prof = new profiler(filename);
-console.log("*----------------------------------------------------*")
-console.log(prof.mod_code)
-console.log("*----------------------------------------------------*")
-eval(prof.mod_code)
+// var filename = "scripts/fun_defs.js"
+// var prof = new Profiler(filename);
+// console.log("*----------------------------------------------------*")
+// console.log(prof.mod_code)
+// console.log("*----------------------------------------------------*")
+// eval(prof.mod_code)
