@@ -1,16 +1,18 @@
 
 class Profiler {
 	mod_code : string;
-	globalStack: Array;
+	private globalStack: Array;
 	
+	private profilers: ProfilerMap;
 	constructor(orig_code){
 		this.globalStack = Array()
 		this.globalStack.push("root");
+		this.profilers = new ProfilerMap();
 
 	}
-
+	
 	public getProfile(name: string): Profile {
-	       return new Profile(name,this);
+	       return this.profilers.getOrElseNew(name,this)
 	}
 
 	public pushAndGetParent(n: string): string {
@@ -23,6 +25,30 @@ class Profiler {
 
 var GlobalProfiler = new Profiler("")
 
+class ProfilerMap{
+      private keys: Array;
+      private values: Array;
+      private numElts: number;
+
+      constructor(){
+	this.keys = Array();
+	this.values = Array();
+	this.numElts = 0;
+      }
+      public getOrElseNew(n: string, prof: Profiler): Profile {
+      	     for(var i = 0; i < this.numElts; i++){
+	     	   if(this.keys[i] === n){
+		   	      return this.values[i];
+		   }	   
+	     }
+	     this.numElts += 1;
+	     this.keys.push(n);
+	     var np = new Profile(n, prof);
+	     this.values.push(np);
+	     return np;
+      }
+      
+}
 
 class Profile{
 
