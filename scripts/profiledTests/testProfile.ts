@@ -1,38 +1,63 @@
 
-var globalStack = Array();
-globalStack.push("root");
+class Profiler {
+	mod_code : string;
+	globalStack: Array;
+	
+	constructor(orig_code){
+		this.globalStack = Array()
+		this.globalStack.push("root");
+
+	}
+
+	public getProfile(name: string): Profile {
+	       return new Profile(name,this);
+	}
+
+	public pushAndGetParent(n: string): string {
+	        var idx =  this.globalStack.push(n);
+		return this.globalStack[idx - 2];
+	}
+	public popStack(): void {this.globalStack.pop();}
+	public printStack(): string {return this.globalStack.toString()}
+}
+
+var GlobalProfiler = new Profiler("")
 
 
 class Profile{
+
     private name: string;
     private startTime: number;
-    constructor(n: string){
-    	name = n;
+    private parentCaller: string;
+    private profiler: Profiler;
+    
+    constructor(n: string,profiler: Profiler){
+    	this.name = n;		    
+	this.profiler = profiler;
     }
     public start(): void{
     	this.startTime = new Date().getTime();
-	console.log("starting at " + this.startTime)
-        var idx =  globalStack.push(name);
-	var parentName = globalStack[idx - 2];	
-	console.log("starting " + name + ", called from " + parentName );
+	this.parentCaller = this.profiler.pushAndGetParent(this.name)
+	
+	console.log("starting " + this.name + ", called from " + this.parentCaller );
     }
     public end(): void {
     	var endTime = new Date().getTime()
-    	console.log("start = " + this.startTime + " end = " + endTime )
         var timeElapsed = endTime  - this.startTime;
-        globalStack.pop();
-	console.log("ending " + name + " in time: " + timeElapsed);
+        this.profiler.popStack();
+	console.log("ending " + this.name + " in time: " + timeElapsed + ", called from " +  this.parentCaller );
+	console.log("stack = " + this.profiler.printStack());
     }
+    public toString(): string { return "profiler: " + this.name;}
 }
 
 
 
 function F(n) {
-    this.name = 'F';
-    this.profile = new Profile(this.name); 
+    var name = 'F';
+    var profile = GlobalProfiler.getProfile(name); 
 
-    this.profile.start();
-    
+    profile.start();
     var toReturn =  1;
     for(var j = 0; j < 1000000*n; j++){
     	    if(j % 2 == 1){
@@ -43,36 +68,46 @@ function F(n) {
 		}
 
     }
-    this.profile.end();
+    console.log('here')
+
+    profile.end();
     return toReturn;
 }
 
 
 
-function run(n): void{
-    this.name = 'run';
-    this.profile = new Profile(this.name);
+function run(n): number{
+    var name = 'run';
+    var profile =  GlobalProfiler.getProfile(name); 
 
-    this.profile.start();
+    profile.start();
+
+    var tV = 0;
     for(var i = 0; i < n; i++){
-  	console.log(F(i))
-   }
-   this.profile.end();
- 
+  	var tV = F(i);
+	console.log(tV);
+   } 
+   profile.end();
+   return tV;
  
 }
 
 
 function driver(): void  {
-	 this.name = 'driver';
-	 this.profile = new Profile(this.name);
-	 this.profile.start()
-	 	  run(6);
-		  console.log('did');
-		  run(7);
+	 var name = 'driver';
+	 var profile = GlobalProfiler.getProfile(name); 
+	 profile.start()
 
-         this.profile.end();	 
+	 	  var v1 = run(6);
+		  console.log(" got "  + v1);
+		  var v2 = run(7);
+		  console.log(" got "  + v2);
+		  var v3 = run(1);
+		  console.log("got " + v3);
+		
+
+         profile.end();	 
 }
 
 driver();
-console.log("flush");
+
