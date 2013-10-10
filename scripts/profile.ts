@@ -11,21 +11,21 @@ class Profile{
     private name: string;
     private startTime: number;
     constructor(n: string){
-    	name = n;
+    	this.name = n;
     }
     public start(): void{
     	this.startTime = new Date().getTime();
 	console.log("starting at " + this.startTime)
-        var idx =  globalStack.push(name);
+        var idx =  globalStack.push(this.name);
 	var parentName = globalStack[idx - 2];	
-	console.log("starting " + name + ", called from " + parentName );
+	console.log("starting " + this.name + ", called from " + parentName );
     }
     public end(): void {
     	var endTime = new Date().getTime()
     	console.log("start = " + this.startTime + " end = " + endTime )
         var timeElapsed = endTime  - this.startTime;
         globalStack.pop();
-	console.log("ending " + name + " in time: " + timeElapsed);
+	console.log("ending " + this.name + " in time: " + timeElapsed);
     }
 }
 
