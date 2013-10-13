@@ -1,33 +1,49 @@
 
+
+class Car {
+    engine: string;
+    constructor (engine: string) {
+        this.engine = engine;
+    }
+}
+
+
+
+
+
+
 class Profiler {
-	mod_code : string;
-	private globalStack: Array;
+	private mod_code : string;
+	private globalStack: string[];
 	
 	private profilers: ProfilerMap;
+
 	constructor(orig_code){
-		this.globalStack = Array()
-		this.globalStack.push("root");
 		this.profilers = new ProfilerMap();
+		this.globalStack = Array();
+		this.globalStack.push("root");
 
 	}
 	
 	public getProfile(name: string): Profile {
-	       return this.profilers.getOrElseNew(name,this)
+//	       return new Profile(name,this);
+	       return this.profilers.getOrElseNew(name,this);
 	}
 
 	public pushAndGetParent(n: string): string {
 	        var idx =  this.globalStack.push(n);
-		return this.globalStack[idx - 2];
+		return this.globalStack[idx - 2].toString();
 	}
 	public popStack(): void {this.globalStack.pop();}
 	public printStack(): string {return this.globalStack.toString()}
 }
 
-var GlobalProfiler = new Profiler("")
+
+
 
 class ProfilerMap{
-      private keys: Array;
-      private values: Array;
+      private keys: string[];
+      private values: Profile[];
       private numElts: number;
 
       constructor(){
@@ -43,6 +59,7 @@ class ProfilerMap{
 	     }
 	     this.numElts += 1;
 	     this.keys.push(n);
+	     console.log('making new profiler for ' + n);
 	     var np = new Profile(n, prof);
 	     this.values.push(np);
 	     return np;
@@ -135,5 +152,13 @@ function driver(): void  {
          profile.end();	 
 }
 
+
+//var pmap = new ProfilerMap('n');
+var GlobalProfiler = new Profiler("")
+
+
 driver();
+
+
+
 
