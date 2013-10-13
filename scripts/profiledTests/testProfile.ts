@@ -1,32 +1,65 @@
 
-
-class Car {
-    engine: string;
-    constructor (engine: string) {
-        this.engine = engine;
-    }
+class ProfilerFromSource{
+	private mod_code : string;
+	private profiler: Profiler;
+	
+	constructor(orig_code: string){
+	    this.mod_code = orig_code;
+	    var callback = function (): string {var f = new Function(this.mod_code); return f();}		   
+	    this.profiler = new Profiler(callback);
+	}
+	public runProfile(): string {return this.profiler.runProfile();}
 }
-
-
-
-
-
 
 class Profiler {
 	private mod_code : string;
 	private globalStack: string[];
 	
 	private profilers: ProfilerMap;
+	private thingToRun: () => string;
 
-	constructor(orig_code){
+	constructor(callback: () => string){
 		this.profilers = new ProfilerMap();
 		this.globalStack = Array();
 		this.globalStack.push("root");
+  		this.thingToRun = callback;		      
+	}
 
+
+	public runProfile(): string{
+	       
+	     var toReturn = this.thingToRun();
+	     console.log("PER-FUNCTION PROFILING INFO")
+	     var profs = this.profilers.getProfiles();
+	     var numericalCriteria = Array(function (p: Profile): number {return p.numInvocations} , function (p: Profile): number {return p.totalTime}); 
+
+	     for(var i = 0; i < profs.length; i++){
+	     	     console.log(profs[i].report())
+	     }
+	     for(var i = 0; i < this.numericalCriteria.length; i++){
+	     	     console.log(makeNumericalHistogram(this.numericalCriteria[i],profs))
+	     }
+
+	     return toReturn;  
 	}
 	
+	private makeNumericalHistogram(f: Profile => number, profs: Profile[]): string {
+		var total: number = 0;	  
+		var np = profs.length;
+		var arr = new Array(np);
+		for(var i = 0; i < np; i++){
+			arr(i) = f(profs[i]);
+			total += arr(i);
+		}
+		var str: string = "";
+		for(var i = 0; i < np; i++){
+			str += profs[i].name + " " + (arr(i)/total) + "\n";
+		}
+		//todo: somehow sort these
+		return str;
+	}
+
 	public getProfile(name: string): Profile {
-//	       return new Profile(name,this);
 	       return this.profilers.getOrElseNew(name,this);
 	}
 
@@ -64,6 +97,7 @@ class ProfilerMap{
 	     this.values.push(np);
 	     return np;
       }
+      public getProfiles(): Profile[] { return this.values;}
       
 }
 
@@ -73,26 +107,43 @@ class Profile{
     private startTime: number;
     private parentCaller: string;
     private profiler: Profiler;
+    public numInvocations: number;
+    public totalTime: number;
     
     constructor(n: string,profiler: Profiler){
     	this.name = n;		    
 	this.profiler = profiler;
+	this.numInvocations = 0;
+	this.totalTime = 0;
     }
+
+
+    public report(): string {
+    	   return "function " + this.name + " invoked " + this.numInvocations + " times. Total time = " + this.totalTime;
+    
+    }
+
     public start(): void{
+    	this.numInvocations++;
     	this.startTime = new Date().getTime();
 	this.parentCaller = this.profiler.pushAndGetParent(this.name)
 	
-	console.log("starting " + this.name + ", called from " + this.parentCaller );
     }
     public end(): void {
     	var endTime = new Date().getTime()
         var timeElapsed = endTime  - this.startTime;
+	this.totalTime += timeElapsed;
         this.profiler.popStack();
-	console.log("ending " + this.name + " in time: " + timeElapsed + ", called from " +  this.parentCaller );
-	console.log("stack = " + this.profiler.printStack());
     }
     public toString(): string { return "profiler: " + this.name;}
 }
+
+
+
+
+
+
+
 
 
 
@@ -111,12 +162,30 @@ function F(n) {
 		}
 
     }
-    console.log('here')
 
     profile.end();
     return toReturn;
 }
 
+function G(n) {
+    var name = 'G';
+    var profile = GlobalProfiler.getProfile(name); 
+
+    profile.start();
+    var toReturn =  1;
+    for(var j = 0; j < 1000000*n; j++){
+    	    if(j % 2 == 1){
+    	    	 toReturn +=(j);
+		 }
+		else{
+		toReturn -= (j);
+		}
+
+    }
+
+    profile.end();
+    return toReturn;
+}
 
 
 function run(n): number{
@@ -128,7 +197,7 @@ function run(n): number{
     var tV = 0;
     for(var i = 0; i < n; i++){
   	var tV = F(i);
-	console.log(tV);
+	var tV2 = G(i);
    } 
    profile.end();
    return tV;
@@ -136,7 +205,7 @@ function run(n): number{
 }
 
 
-function driver(): void  {
+function driver(): string  {
 	 var name = 'driver';
 	 var profile = GlobalProfiler.getProfile(name); 
 	 profile.start()
@@ -150,15 +219,13 @@ function driver(): void  {
 		
 
          profile.end();	 
+	 return v3.toString();
 }
 
 
-//var pmap = new ProfilerMap('n');
-var GlobalProfiler = new Profiler("")
-
-
-driver();
 
 
 
 
+var GlobalProfiler = new Profiler(driver)
+GlobalProfiler.runProfile();
