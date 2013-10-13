@@ -29,31 +29,33 @@ class Profiler {
 	public runProfile(): string{
 	       
 	     var toReturn = this.thingToRun();
-	     console.log("PER-FUNCTION PROFILING INFO")
+	     console.log("\nPER-FUNCTION PROFILING INFO")
 	     var profs = this.profilers.getProfiles();
-	     var numericalCriteria = Array(function (p: Profile): number {return p.numInvocations} , function (p: Profile): number {return p.totalTime}); 
-
+	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
+	     	 		     	 function (p: Profile): number {return p.totalTime;}); 
+	     var histogramNames = new Array('Num Invocations', 'Total Time');				 
 	     for(var i = 0; i < profs.length; i++){
 	     	     console.log(profs[i].report())
 	     }
-	     for(var i = 0; i < this.numericalCriteria.length; i++){
-	     	     console.log(makeNumericalHistogram(this.numericalCriteria[i],profs))
+	     for(var i = 0; i < numericalCriteria.length; i++){
+	     	     console.log('\n' + histogramNames[i]);
+	     	     console.log(this.makeNumericalHistogram(numericalCriteria[i],profs))
 	     }
 
 	     return toReturn;  
 	}
 	
-	private makeNumericalHistogram(f: Profile => number, profs: Profile[]): string {
+	private makeNumericalHistogram(f: (Profile) => number, profs: Profile[]): string {
 		var total: number = 0;	  
 		var np = profs.length;
 		var arr = new Array(np);
 		for(var i = 0; i < np; i++){
-			arr(i) = f(profs[i]);
-			total += arr(i);
+			arr[i] = f(profs[i]);
+			total += arr[i];
 		}
 		var str: string = "";
 		for(var i = 0; i < np; i++){
-			str += profs[i].name + " " + (arr(i)/total) + "\n";
+			str += profs[i].name + " " + (arr[i]/total) + "\n";
 		}
 		//todo: somehow sort these
 		return str;
@@ -103,7 +105,7 @@ class ProfilerMap{
 
 class Profile{
 
-    private name: string;
+    public name: string;
     private startTime: number;
     private parentCaller: string;
     private profiler: Profiler;
