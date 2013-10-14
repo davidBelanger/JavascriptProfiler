@@ -1,151 +1,7 @@
+var fs = require('fs');
 
-class ProfilerFromSource{
-	private mod_code : string;
-	private profiler: Profiler;
-	
-	constructor(orig_code: string){
-	    this.mod_code = orig_code;
-	    var callback = function (): string {var f = new Function(this.mod_code); return f();}		   
-	    this.profiler = new Profiler(callback);
-	}
-	public runProfile(): string {return this.profiler.runProfile();}
-}
-
-class Profiler {
-	private mod_code : string;
-	private globalStack: string[];
-	
-	private profilers: ProfilerMap;
-	private thingToRun: () => string;
-
-	constructor(callback: () => string){
-		this.profilers = new ProfilerMap();
-		this.globalStack = Array();
-		this.globalStack.push("root");
-  		this.thingToRun = callback;		      
-	}
-
-
-	public runProfile(): string{
-	       
-	     var toReturn = this.thingToRun();
-	     console.log("\nPER-FUNCTION PROFILING INFO")
-	     var profs = this.profilers.getProfiles();
-	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
-	     	 		     	 function (p: Profile): number {return p.totalTime;}); 
-	     var histogramNames = new Array('Num Invocations', 'Total Time');				 
-	     for(var i = 0; i < profs.length; i++){
-	     	     console.log(profs[i].report())
-	     }
-	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     console.log('\n' + histogramNames[i]);
-	     	     console.log(this.makeNumericalHistogram(numericalCriteria[i],profs))
-	     }
-
-	     return toReturn;  
-	}
-	
-	private makeNumericalHistogram(f: (Profile) => number, profs: Profile[]): string {
-		var total: number = 0;	  
-		var np = profs.length;
-		var arr = new Array(np);
-		for(var i = 0; i < np; i++){
-			arr[i] = f(profs[i]);
-			total += arr[i];
-		}
-		var str: string = "";
-		for(var i = 0; i < np; i++){
-			str += profs[i].name + " " + (arr[i]/total) + "\n";
-		}
-		//todo: somehow sort these
-		return str;
-	}
-
-	public getProfile(name: string): Profile {
-	       return this.profilers.getOrElseNew(name,this);
-	}
-
-	public pushAndGetParent(n: string): string {
-	        var idx =  this.globalStack.push(n);
-		return this.globalStack[idx - 2].toString();
-	}
-	public popStack(): void {this.globalStack.pop();}
-	public printStack(): string {return this.globalStack.toString()}
-}
-
-
-
-
-class ProfilerMap{
-      private keys: string[];
-      private values: Profile[];
-      private numElts: number;
-
-      constructor(){
-	this.keys = Array();
-	this.values = Array();
-	this.numElts = 0;
-      }
-      public getOrElseNew(n: string, prof: Profiler): Profile {
-      	     for(var i = 0; i < this.numElts; i++){
-	     	   if(this.keys[i] === n){
-		   	      return this.values[i];
-		   }	   
-	     }
-	     this.numElts += 1;
-	     this.keys.push(n);
-	     console.log('making new profiler for ' + n);
-	     var np = new Profile(n, prof);
-	     this.values.push(np);
-	     return np;
-      }
-      public getProfiles(): Profile[] { return this.values;}
-      
-}
-
-class Profile{
-
-    public name: string;
-    private startTime: number;
-    private parentCaller: string;
-    private profiler: Profiler;
-    public numInvocations: number;
-    public totalTime: number;
-    
-    constructor(n: string,profiler: Profiler){
-    	this.name = n;		    
-	this.profiler = profiler;
-	this.numInvocations = 0;
-	this.totalTime = 0;
-    }
-
-
-    public report(): string {
-    	   return "function " + this.name + " invoked " + this.numInvocations + " times. Total time = " + this.totalTime;
-    
-    }
-
-    public start(): void{
-    	this.numInvocations++;
-    	this.startTime = new Date().getTime();
-	this.parentCaller = this.profiler.pushAndGetParent(this.name)
-	
-    }
-    public end(): void {
-    	var endTime = new Date().getTime()
-        var timeElapsed = endTime  - this.startTime;
-	this.totalTime += timeElapsed;
-        this.profiler.popStack();
-    }
-    public toString(): string { return "profiler: " + this.name;}
-}
-
-
-
-
-
-
-
+// file is included here:
+eval(fs.readFileSync('scripts/profiledTests/profiling.js')+'');
 
 
 
@@ -190,7 +46,7 @@ function G(n) {
 }
 
 
-function run(n): number{
+function run(n){
     var name = 'run';
     var profile =  GlobalProfiler.getProfile(name); 
 
@@ -207,7 +63,7 @@ function run(n): number{
 }
 
 
-function driver(): string  {
+function driver(){
 	 var name = 'driver';
 	 var profile = GlobalProfiler.getProfile(name); 
 	 profile.start()
