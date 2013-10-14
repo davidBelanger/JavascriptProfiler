@@ -18,7 +18,6 @@ class ProfilerFromSource{
 	    
 	    this.mod_code = escodegen.generate(prog_tree);
 
-	    //console.log('profiling ' + this.mod_code);
 	    var callback: () => string; 
 	    this.profiler = new Profiler(callback);
 	    var GlobalProfiler = this.profiler;
@@ -34,7 +33,6 @@ class ProfilerFromSource{
 	    this.profiler.thingToRun = callback;
 	    
 	    this.test = callback;
-	    console.log('mc = ' + this.mod_code)	
 	}
 	public runProfiling(): string { return this.profiler.runProfile();}
 }
@@ -55,7 +53,6 @@ class Profiler {
 
 
 	public runProfile(): string{
-	     console.log('running' + this.thingToRun);  
 	     var toReturn = this.thingToRun();
 
 	     console.log("\nPER-FUNCTION PROFILING INFO")
@@ -67,7 +64,7 @@ class Profiler {
 	     	     console.log(profs[i].report())
 	     }
 	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     console.log('\n' + histogramNames[i]);
+	     	     console.log('\n' + histogramNames[i] + "(sorted by amount)");
 	     	     console.log(this.makeNumericalHistogram(numericalCriteria[i],profs))
 	     }
 
@@ -97,7 +94,7 @@ class Profiler {
 		var indices = new Array(np);
 		for(var i = 0; i < np; i++) indices[i] = i;
 
-		indices.sort(function (x,y) {return arr[x] - arr[y]});
+		indices.sort(function (x,y) {return arr[y] - arr[x]});
 
 		return indices;
 	}
