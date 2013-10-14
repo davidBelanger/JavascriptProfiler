@@ -5,7 +5,7 @@ eval(fs.readFileSync('scripts/profiling.js')+'');
 
 
 tests = new Array()
-tests.push(new Array('scripts/testScripts/spect.js'))
+//tests.push(new Array('scripts/testScripts/spect.js'))
 tests.push(new Array('scripts/testScripts/nbody.js'))
 tests.push(new Array('scripts/testScripts/fannkuch.js'))
 

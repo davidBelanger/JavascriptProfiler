@@ -229,7 +229,7 @@ function modify_func(node){
 		{
 			fname = "anon_line_" + node["body"]["loc"]["start"]["line"] + "_col_" + node["body"]["loc"]["start"]["column"]
 		}
-		var ent_code = "var fun_prof = new Profile(\""+fname+"\");fun_prof.start();";
+		var ent_code = "var fun_prof = GlobalProfiler.getProfile(\""+fname+"\");fun_prof.start();";
 		var ex_code = "fun_prof.end();";
 		node["body"]["body"] = esprima.parse(ent_code)["body"].concat(node["body"]["body"],esprima.parse(ex_code)["body"]);
 	}
