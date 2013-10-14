@@ -6,8 +6,8 @@ eval(fs.readFileSync('scripts/profiling.js')+'');
 
 tests = new Array()
 tests.push(new Array('scripts/testScripts/spect.js'))
-//tests.push(new Array('scripts/testScripts/nbody.js'))
-//tests.push(new Array('scripts/testScripts/fannkuch.js'))
+tests.push(new Array('scripts/testScripts/nbody.js'))
+tests.push(new Array('scripts/testScripts/fannkuch.js'))
 
 for(i = 0; i < tests.length; i++){
     var t = tests[i];
@@ -16,26 +16,14 @@ for(i = 0; i < tests.length; i++){
     var inputScriptString = fs.readFileSync(file)+'';
     var prof = new ProfilerFromSource(inputScriptString,true);
     var getOriginalOutput = function() {
-	    eval(inputScriptString);
-	    return eval('doTest()');
+	    return eval(inputScriptString+ "; doTest()");
 	}
-    
     
     var profiled1Func = function(){
 	this.GlobalProfiler = prof.profiler;
 	eval(prof.mod_code);
-	return eval('doTest()');
     }
-    console.log(prof.test());
-    console.log('ran from test');
-    console.log(prof.profiler.thingToRun());
-    prof.profiler.thingToRun();
-    console.log('ran from profiler');
-    var pdb2 = prof.profiler.thingToRun;
-    pdb2();
 
-    var prof1 = profiled1Func();
-    console.log('db = '  + prof1);
     var profiled =  prof.runProfiling()
     var orig = getOriginalOutput();
 

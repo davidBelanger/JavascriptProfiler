@@ -21,15 +21,15 @@ class ProfilerFromSource{
 	    //console.log('profiling ' + this.mod_code);
 	    var callback: () => string; 
 	    this.profiler = new Profiler(callback);
+	    var GlobalProfiler = this.profiler;
+	    var mc = this.mod_code;
 
 	    if(testMode === true){
-	     callback = function (): string {var GlobalProfiler = this.profiler; eval(this.mod_code); return eval('doTest()');};   	//todo: change
-//	     callback = function (): string {var f = new Function(this.mod_code); f(); return 'change';};   	//todo: change
+	     callback = function (): string {return eval(mc+ "; doTest()")};  
 
 	    }else{
-	     callback = function (): string {var f = new Function(this.mod_code);  f(); return 'change'};		   
+	     callback = function (): string {return eval(mc);};		   
 	    }
-	    var GlobalProfiler = this.profiler;
 
 	    this.profiler.thingToRun = callback;
 	    
@@ -55,7 +55,7 @@ class Profiler {
 
 
 	public runProfile(): string{
-	     //console.log('running' + this.thingToRun);  
+	     console.log('running' + this.thingToRun);  
 	     var toReturn = this.thingToRun();
 
 	     console.log("\nPER-FUNCTION PROFILING INFO")
