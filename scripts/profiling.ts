@@ -7,7 +7,8 @@ var escodegen = require("escodegen");
 class ProfilerFromSource{
 	private mod_code : string;
 	public profiler: Profiler;
-	
+	public test: () => string;
+	//var GlobalProfiler: Profiler;
 	constructor(orig_code: string, testMode: boolean = false){
 
 	    
@@ -22,13 +23,17 @@ class ProfilerFromSource{
 	    this.profiler = new Profiler(callback);
 
 	    if(testMode === true){
-//	     callback = function (): string {var f =  function(){var GlobalProfiler = profiler;eval(this.mod_code); return eval('doTest()');}; return 'change';};   	//todo: change
-	     callback = function (): string {var f = new Function(this.mod_code); f(); return 'change';};   	//todo: change
+	     callback = function (): string {var GlobalProfiler = this.profiler; eval(this.mod_code); return eval('doTest()');};   	//todo: change
+//	     callback = function (): string {var f = new Function(this.mod_code); f(); return 'change';};   	//todo: change
 
 	    }else{
 	     callback = function (): string {var f = new Function(this.mod_code);  f(); return 'change'};		   
 	    }
-	    profiler.thingToRun = callback;
+	    var GlobalProfiler = this.profiler;
+
+	    this.profiler.thingToRun = callback;
+	    
+	    this.test = callback;
 	    console.log('mc = ' + this.mod_code)	
 	}
 	public runProfiling(): string { return this.profiler.runProfile();}
@@ -233,7 +238,7 @@ function modify_func(node){
 		node["body"] = []
 		node["body"].push({
                         "type": "VariableDeclaration",
-                        "declarations": [s
+                        "declarations": [
                             {
                                 "type": "VariableDeclarator",
                                 "id": {
