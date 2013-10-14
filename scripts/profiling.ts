@@ -43,10 +43,12 @@ class Profiler {
 	
 	private profilers: ProfilerMap;
 	public thingToRun: () => string;
+	private edges: string[];
 
 	constructor(callback: () => string){
 		this.profilers = new ProfilerMap();
 		this.globalStack = Array();
+		this.edges = Array();
 		this.globalStack.push("root");
   		this.thingToRun = callback;		      
 	}
@@ -57,18 +59,49 @@ class Profiler {
 
 	     console.log("\nPER-FUNCTION PROFILING INFO")
 	     var profs = this.profilers.getProfiles();
+
+	     ////////Specify all the profiling info to print out here
 	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
 	     	 		     	 function (p: Profile): number {return p.totalTime;}); 
-	     var histogramNames = new Array('Num Invocations', 'Total Time');				 
+	     var numericalHistogramNames = new Array('Num Invocations', 'Total Time');				 
+	     
+	     ////////
+
 	     for(var i = 0; i < profs.length; i++){
 	     	     console.log(profs[i].report())
 	     }
 	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     console.log('\n' + histogramNames[i] + "(sorted by amount)");
+	     	     console.log('\n' + numericalHistogramNames[i] + "(sorted by amount)");
 	     	     console.log(this.makeNumericalHistogram(numericalCriteria[i],profs))
 	     }
+	     
+	     console.log('Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10))
+
+	    // console.log('Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.paths,10))
+	     
 
 	     return toReturn;  
+	}
+
+	private makeCategoricalHistogram(arr: string[], numTake: number = 10): string {
+		var counts = {};
+		for(var i = 0; i < arr.length; i++){
+			var key = arr[i];
+			counts[key] +=1;	
+		}
+		console.log('counts = ' + counts.toString());
+		var keys = Object.keys(counts);
+		console.log('keys = ' + keys.toString());
+		var np = keys.length 
+		var indices = new Array(np);
+		for(var i = 0; i < np; i++) indices[i] = i;
+		indices.sort(function (x,y) {return counts[keys[y]] - counts[keys[x]]});
+		var toReturn = "";
+		for(var i = 0; i < Math.min(numTake,np);i++){
+			var idx = indices[i];
+			toReturn += keys[idx] +  " " + counts[keys[idx]] + "\n" ;	
+		} 
+		return toReturn;	
 	}
 	
 	private makeNumericalHistogram(f: (Profile) => number, profs: Profile[]): string {
@@ -104,7 +137,9 @@ class Profiler {
 
 	public pushAndGetParent(n: string): string {
 	        var idx =  this.globalStack.push(n);
-		return this.globalStack[idx - 2].toString();
+		var parent = this.globalStack[idx - 2].toString();
+		this.edges.push(parent + "-->" + n);
+		return parent;
 	}
 	public popStack(): void {this.globalStack.pop();}
 	public printStack(): string {return this.globalStack.toString()}
