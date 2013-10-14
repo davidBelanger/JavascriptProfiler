@@ -44,20 +44,23 @@ class Profiler {
 	private profilers: ProfilerMap;
 	public thingToRun: () => string;
 	private edges: string[];
+	private pathsFromRoot: string[];
 
 	constructor(callback: () => string){
 		this.profilers = new ProfilerMap();
 		this.globalStack = Array();
 		this.edges = Array();
 		this.globalStack.push("root");
-  		this.thingToRun = callback;		      
+  		this.thingToRun = callback;	
+		this.pathsFromRoot = Array();	      
 	}
 
 
 	public runProfile(): string{
 	     var toReturn = this.thingToRun();
 
-	     console.log("\nPER-FUNCTION PROFILING INFO")
+	     
+	    // console.log("\nPER-FUNCTION PROFILING INFO")
 	     var profs = this.profilers.getProfiles();
 
 	     ////////Specify all the profiling info to print out here
@@ -77,7 +80,7 @@ class Profiler {
 	     
 	     console.log('Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10))
 
-	    // console.log('Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.paths,10))
+	     console.log('Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10))
 	     
 
 	     return toReturn;  
@@ -87,14 +90,14 @@ class Profiler {
 		var counts = {};
 		for(var i = 0; i < arr.length; i++){
 			var key = arr[i];
+			if(counts[key] == undefined) counts[key] = 0;
 			counts[key] +=1;	
 		}
-		console.log('counts = ' + counts.toString());
 		var keys = Object.keys(counts);
-		console.log('keys = ' + keys.toString());
 		var np = keys.length 
 		var indices = new Array(np);
 		for(var i = 0; i < np; i++) indices[i] = i;
+
 		indices.sort(function (x,y) {return counts[keys[y]] - counts[keys[x]]});
 		var toReturn = "";
 		for(var i = 0; i < Math.min(numTake,np);i++){
@@ -139,6 +142,7 @@ class Profiler {
 	        var idx =  this.globalStack.push(n);
 		var parent = this.globalStack[idx - 2].toString();
 		this.edges.push(parent + "-->" + n);
+		this.pathsFromRoot.push(this.globalStack.toString())
 		return parent;
 	}
 	public popStack(): void {this.globalStack.pop();}
@@ -166,7 +170,6 @@ class ProfilerMap{
 	     }
 	     this.numElts += 1;
 	     this.keys.push(n);
-	     console.log('making new profiler for ' + n);
 	     var np = new Profile(n, prof);
 	     this.values.push(np);
 	     return np;

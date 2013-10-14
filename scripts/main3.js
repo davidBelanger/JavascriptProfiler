@@ -12,6 +12,7 @@ tests.push(new Array('scripts/testScripts/fannkuch.js'))
 for(i = 0; i < tests.length; i++){
     var t = tests[i];
     var file = t[0];
+    console.log('\n\nProfiling ' + file);
 
     var inputScriptString = fs.readFileSync(file)+'';
     var prof = new ProfilerFromSource(inputScriptString,true);
@@ -27,7 +28,6 @@ for(i = 0; i < tests.length; i++){
     var profiled =  prof.runProfiling()
     var orig = getOriginalOutput();
 
-    console.log('got ' + orig + " and " + profiled);
     assertEqual(orig,profiled);
 
 }
@@ -37,6 +37,8 @@ for(i = 0; i < tests.length; i++){
 function assertEqual(a,b){
     if(a != b){
 	console.log("ERROR: TEST FAILED");
+    }else{
+	console.log("TEST PASSED");
     }
 }
 
