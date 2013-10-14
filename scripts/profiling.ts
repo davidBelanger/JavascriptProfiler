@@ -13,7 +13,7 @@ class ProfilerFromSource{
 
 	    
 
-	    var prog_tree = esprima.parse(orig_code);
+	    var prog_tree = esprima.parse(orig_code,{"loc":true});
 	    node_apply(prog_tree,modify_func);//apply modifications here
 	    
 	    this.mod_code = escodegen.generate(prog_tree);
@@ -220,11 +220,14 @@ function modify_func(node){
 	else if(node["type"] == "FunctionExpression")
 	{
 		var fname : any;
-		fname = "anon func";
 		//mod exp
 		if(node["id"] != null)
 		{
-			var fname = node["id"]["name"];
+			fname = node["id"]["name"];
+		}
+		else
+		{
+			fname = "anon_line_" + node["body"]["loc"]["start"]["line"] + "_col_" + node["body"]["loc"]["start"]["column"]
 		}
 		var ent_code = "var fun_prof = new Profile(\""+fname+"\");fun_prof.start();";
 		var ex_code = "fun_prof.end();";
