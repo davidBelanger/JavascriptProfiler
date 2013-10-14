@@ -26,11 +26,11 @@ for(i = 0; i < tests.length; i++){
 	eval(prof.mod_code);
 	return eval('doTest()');
     }
-    prof.test();
-    console.log('finished test');
-    console.log(prof.profiler.thingToRun.toString);
+    console.log(prof.test());
+    console.log('ran from test');
+    console.log(prof.profiler.thingToRun());
     prof.profiler.thingToRun();
-    console.log('h2');
+    console.log('ran from profiler');
     var pdb2 = prof.profiler.thingToRun;
     pdb2();
 
