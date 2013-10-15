@@ -58,11 +58,13 @@ class Profiler {
 
 	public runProfile(): string{
 	     var toReturn = this.thingToRun();
-
-	     
-	    // console.log("\nPER-FUNCTION PROFILING INFO")
+	     var reportString = this.getReport();
+	     return reportString;
+	     }
+	public getReport(): string { 
 	     var profs = this.profilers.getProfiles();
 
+	     var toReturn = "";
 	     ////////Specify all the profiling info to print out here
 	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
 	     	 		     	 function (p: Profile): number {return p.totalTime;}); 
@@ -71,17 +73,18 @@ class Profiler {
 	     ////////
 
 	     for(var i = 0; i < profs.length; i++){
-	     	     console.log(profs[i].report())
+	     	     toReturn += profs[i].report() + "\n";
 	     }
 	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     console.log('\n' + numericalHistogramNames[i] + "(sorted by amount)");
-	     	     console.log(this.makeNumericalHistogram(numericalCriteria[i],profs))
+	     	     toReturn += '\n' + numericalHistogramNames[i] + "(sorted by amount)" + "\n";
+	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
 	     }
 	     
-	     console.log('Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10))
+	    toReturn += 'Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10) + "\n";
 
-	     console.log('Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10))
+	     toReturn += 'Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10) + "\n";
 	     
+	     console.log(toReturn);
 
 	     return toReturn;  
 	}

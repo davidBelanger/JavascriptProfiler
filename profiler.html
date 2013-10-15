@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<title>JS Profiler</title>
+</head>
+
+<script src="scripts/escodegen.browser.js"></script>
+<script src="scripts/esprima.js"></script>
+<script src="scripts/profiling.js"> </script>
+<script type="text/javascript">
+function submitCode()
+{
+var incode=document.getElementById("textareaCode").value;
+
+//Generate output here
+    var prof = new ProfilerFromSource(incode,false);
+    var profiled =  prof.runProfiling()
+
+document.getElementById("outputBox").value = profiled;
+}
+</script>
+
+<body style="background-color:#e5eecc;">
+<div id="content">
+	<div id="sourcecode">
+		<div class="headerText">Source Code:</div>
+			<input id="submitBTN" type="button" value="Submit Code &raquo;" onclick="submitCode();">
+			<form style="margin:0px" action="submitted_code.asp" method="post" target="view" id="incode" name="incode">
+				<textarea class="code_input" id="textareaCode" wrap="off" rows="25" cols="75">Input JS code here.</textarea>
+				<input type="hidden" name="code" id="code" />
+				<input type="hidden" id="bt" name="bt" />
+			</form>
+	</div>
+	<div id="result">
+		<div class="headerText">Result:</div>
+	<!--<div style="clear:both;"></div>-->
+	<textarea class="results" id="outputBox" wrap="off" rows="25" cols="75" readonly></textarea>
+	<div id="footer">
+		Edit the code above and click "Submit Code" to see the result.
+	</div>
+</div>
+
+</body>
+</html>
