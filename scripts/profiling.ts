@@ -220,21 +220,27 @@ class Profile{
 /////********The stuff below this is for transforming code to be instrumented********/////
 // applies func to all nodes in the tree
 function node_apply(tree,func) {
-    for (var key in tree) {
-        if (tree.hasOwnProperty(key)) {
-            var child = tree[key];
-            if (typeof child === 'object' && child !== null) {
-
-                if (Array.isArray(child)) {
-                    child.forEach(function(c) {
-                        node_apply(c,func);
-                    });
-                } else {
-                    node_apply(child,func);
-                }
-            }
-        }
+	// for each child of the root
+    for(var edge in tree) {
+		if(tree.hasOwnProperty(edge))
+		{
+			var child = tree[edge];
+			// if child is an array of nodes (as in a blockstatement or function body)
+			if(Array.isArray(child))
+			{
+				for(var i = 0; i < child.length; ++i)
+				{
+					node_apply(child[i],func);
+				}
+			}
+			// if child is an associative array
+			else if(typeof child === 'object' && child !== null)
+			{
+				node_apply(child,func);
+			}
+		}
     }
+	
 	func(tree);
 }
 
@@ -245,7 +251,9 @@ function modify_func(node){
 	if(node["type"] == "FunctionDeclaration")
 	{
 		var fname = node["id"]["name"]
+		// code executed upon entry
 		var ent_code = "var fun_prof = GlobalProfiler.getProfile(\""+fname+"\");fun_prof.start();"
+		// code executed upon return
 		var ex_code = "fun_prof.end();"
 		node["body"]["body"] = esprima.parse(ent_code)["body"].concat(node["body"]["body"],esprima.parse(ex_code)["body"])
 	}
@@ -264,7 +272,9 @@ function modify_func(node){
 		{
 			fname = "anon_line_" + node["body"]["loc"]["start"]["line"] + "_col_" + node["body"]["loc"]["start"]["column"]
 		}
+		// code executed upon entry
 		var ent_code = "var fun_prof = GlobalProfiler.getProfile(\""+fname+"\");fun_prof.start();";
+		// code executed upon return
 		var ex_code = "fun_prof.end();";
 		node["body"]["body"] = esprima.parse(ent_code)["body"].concat(node["body"]["body"],esprima.parse(ex_code)["body"]);
 	}
