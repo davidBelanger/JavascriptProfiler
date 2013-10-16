@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>JS Profiler Test Suite</title>
+<meta charset="UTF-8">
+
+
+
+</head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="scripts/escodegen.browser.js"></script>
+<script src="scripts/esprima.js"></script>
+<script src="scripts/profiling.js"> </script>
+<script type="text/javascript">
+
+
+var tests = new Array()
+tests.push(new Array('scripts/testScripts/spect.js'))
+tests.push(new Array('scripts/testScripts/nbody2.js'))
+tests.push(new Array('scripts/testScripts/fannkuch.js'))
+
+
+
+for(var i = 0; i < tests.length; i++){
+  var src = tests[i];
+  console.log('profiling ' +  src);
+  var srcCode;
+  jQuery.get(src,function(result){
+      console.log('got' + result);
+      runProfileTest(result,src);
+  })
+}
+
+function runProfileTest(inputScriptString,name)  {
+
+var prof = new ProfilerFromSource(inputScriptString,true);
+console.log('src =' + inputScriptString);
+
+    var getOriginalOutput = function() {
+	    return eval(inputScriptString+ "; doTest()");
+	}
+
+    console.log('got ' + getOriginalOutput());
+    var profiled1Func = function(){
+	var result = prof.startUp();
+	document.writeln(prof.getReport().replace(/(\n)+/g, '<br />'));
+	return result;
+    }
+    var profiled =  profiled1Func()
+
+    var orig = getOriginalOutput();
+
+
+    assertEqual(orig,profiled,name);
+
+}
+    
+    
+
+function assertEqual(a,b,name){
+    if(a != b){
+	window.alert("ERROR: TEST " +  name + "FAILED\ngot " + a + " and " + b);
+    }else{
+	document.writeln("TEST PASSED");
+    }
+}
+
+</script>
+<body>
+
+<hr>
+<address></address>
+</body> </html>
