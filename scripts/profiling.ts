@@ -35,7 +35,8 @@ class ProfilerFromSource{
 	    
 	    this.test = callback;
 	}
-	public runProfiling(): string { return this.profiler.runProfile();}
+	public startUp(): string { return this.profiler.startUp();}
+	public getReport(): string {return this.profiler.getReport();}
 }
 
 
@@ -57,10 +58,9 @@ class Profiler {
 	}
 
 
-	public runProfile(): string{
+	public startUp(): string{
 	     var toReturn = this.thingToRun();
-	     var reportString = this.getReport();
-	     return reportString;
+	     return toReturn;
 	     }
 	public getReport(): string { 
 	     var profs = this.profilers.getProfiles();

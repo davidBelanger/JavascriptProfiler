@@ -21,11 +21,12 @@ for(i = 0; i < tests.length; i++){
 	}
     
     var profiled1Func = function(){
-	this.GlobalProfiler = prof.profiler;
-	eval(prof.mod_code);
+	var result = prof.startUp();
+	console.log(prof.getReport());
+	return result;
     }
 
-    var profiled =  prof.runProfiling()
+    var profiled =  profiled1Func()
     var orig = getOriginalOutput();
 
     assertEqual(orig,profiled);
@@ -36,7 +37,7 @@ for(i = 0; i < tests.length; i++){
 
 function assertEqual(a,b){
     if(a != b){
-	console.log("ERROR: TEST FAILED");
+	console.log("ERROR: TEST FAILED\ngot " + a + " and " + b);
     }else{
 	console.log("TEST PASSED");
     }

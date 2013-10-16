@@ -16,9 +16,14 @@ var incode=document.getElementById("textareaCode").value;
 
 //Generate output here
     var prof = new ProfilerFromSource(incode,false);
-    var profiled =  prof.runProfiling()
+    prof.startUp();
+    var initialProfile ="Startup Profile\n" +prof.getReport();
+    document.getElementById("outputBox").value = initialProfile;
 
-document.getElementById("outputBox").value = profiled;
+    var profile = function () {
+       document.getElementById("outputBox").value = "Post-Startup results of callbacks" +  prof.getReport();
+    }
+    setInterval(profile,1000);
 }
 </script>
 
