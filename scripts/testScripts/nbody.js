@@ -287,5 +287,8 @@ function runNBody(n) {
 
 
 function doTest(){
-    return runNBody(10);
+
+    var got = runNBody(10);
+    console.log("got " + got);
+    return got;
 }

@@ -5,9 +5,11 @@ var escodegen = require("escodegen");
 
 
 class ProfilerFromSource{
-	private mod_code : string;
+	public mod_code : string;
 	public profiler: Profiler;
 	public test: () => string;
+
+
 	//var GlobalProfiler: Profiler;
 	constructor(orig_code: string, testMode: boolean = false){
 
@@ -17,7 +19,6 @@ class ProfilerFromSource{
 	    node_apply(prog_tree,modify_func);//apply modifications here
 	    
 	    this.mod_code = escodegen.generate(prog_tree);
-
 	    var callback: () => string; 
 	    this.profiler = new Profiler(callback);
 	    var GlobalProfiler = this.profiler;
@@ -36,6 +37,7 @@ class ProfilerFromSource{
 	}
 	public startUp(): string { return this.profiler.startUp();}
 	public getReport(): string {return this.profiler.getReport();}
+
 }
 
 
@@ -84,7 +86,7 @@ class Profiler {
 
 	     toReturn += 'Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10) + "\n";
 	     
-	     console.log(toReturn);
+	     //console.log(toReturn);
 
 	     return toReturn;  
 	}
