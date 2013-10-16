@@ -47,3 +47,8 @@ function spectralnorm(n) {
     return Math.sqrt(vBv/vv);
 }
 
+spectralnorm(10);
+spectralnorm(15)
+
+var repeat = function () {spectralnorm(10)};
+setInterval(repeat, 1000);
