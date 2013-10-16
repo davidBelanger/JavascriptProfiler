@@ -16,6 +16,7 @@ class ProfilerFromSource{
 	    var prog_tree = esprima.parse(orig_code,{"loc":true});
 	    node_apply(prog_tree,modify_func);//apply modifications here
 	    
+		// console.log(JSON.stringify(prog_tree, null, 4));
 	    this.mod_code = escodegen.generate(prog_tree);
 
 	    var callback: () => string; 
@@ -310,6 +311,47 @@ function modify_func(node){
 							}
 						})
 		node["type"] = "BlockStatement"
+	}
+	else if(node["type"] == "CallExpression")
+	{
+		var call_name = node["callee"]["name"]
+		if(call_name == "setTimeout" || call_name == "setInterval")
+		{
+			var cb_fun = escodegen.generate(node["arguments"][0]);
+			var scb_name = call_name+"_line_"+ + node["loc"]["start"]["line"] + "_col_" + node["loc"]["start"]["column"];
+			var new_arg = "(function(foo){return (function(){var acb_name = \""+scb_name+"\"; var fun_prof = GlobalProfiler.getProfile(acb_name);fun_prof.start();foo();fun_prof.end();})})("+cb_fun+")";
+			var new_arg_tree = esprima.parse(new_arg)["body"][0]["expression"]
+			
+			// node["body"] = []
+			// node["body"].push({
+							// "type": "VariableDeclaration",
+							// "declarations": [
+								// {
+									// "type": "VariableDeclarator",
+									// "id": {
+										// "type": "Identifier",
+										// "name": "profiler_cb_fun"
+									// },
+									// "init": new_arg_tree
+								// }
+							// ],
+							// "kind": "var"
+						// })
+			// node["body"].push({
+                // "type": "CallExpression",
+                // "callee": {
+                    // "type": "Identifier",
+                    // "name": "setTimeout"
+                // },
+                // "arguments": [
+                    // {
+                        // "type": "Identifier",
+                        // "name": "profiler_cb_fun"
+                    // },
+					// node["arguments"][1]
+                // ]})
+			node["arguments"][0] = new_arg_tree
+		}
 	}
 }
 
