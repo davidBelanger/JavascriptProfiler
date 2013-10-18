@@ -87,7 +87,7 @@ class Profiler {
 
 	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
 		     var divId = '#container' + i;
-	     this.makeAwesomeHistogram(function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;},profs, divId,numericalHistogramNames[i]);
+	     this.makeAwesomeHistogram(numericalCriteria[i],profs, divId,numericalHistogramNames[i]);
 
 	     }
 
