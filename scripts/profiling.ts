@@ -38,6 +38,11 @@ class ProfilerFromSource{
 	}
 	public startUp(): string { return this.profiler.startUp();}
 	public getReport(): string {return this.profiler.getReport();}
+	public getCodeFile(): string
+	{
+		// return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nwindow.open(\"../reporter.html\")\n" + this.mod_code;
+		return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nwindow.open(\"../reporter.html\");\nsetInterval(function(){window.report = GlobalProfiler.getStringReport()},1000);\n" + this.mod_code;
+	}
 
 }
 
@@ -88,6 +93,38 @@ class Profiler {
 	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
 		     var divId = '#container' + i;
 	     this.makeAwesomeHistogram(numericalCriteria[i],profs, divId,numericalHistogramNames[i]);
+
+	     }
+
+	     
+	    toReturn += 'Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10) + "\n";
+
+	     toReturn += 'Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10) + "\n";
+	     
+	     //console.log(toReturn);
+
+	     return toReturn;  
+	}
+	
+	public getStringReport(): string { 
+	     var profs = this.profilers.getProfiles();
+
+	     var toReturn = "";
+	     ////////Specify all the profiling info to print out here
+	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
+	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
+					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
+	     var numericalHistogramNames = new Array('Num Invocations', 'Average Time Below','Average Self Time');				 
+	     
+	     ////////
+
+	     for(var i = 0; i < profs.length; i++){
+	     	     toReturn += profs[i].report() + "\n";
+	     }
+	     for(var i = 0; i < numericalCriteria.length; i++){
+	     	     toReturn += '\n' + numericalHistogramNames[i] + "(sorted by percentage) " + "\n";
+
+	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
 
 	     }
 
@@ -206,6 +243,14 @@ plotOptions: {
 	}
 	public endJob(elapsedTime: number): number {this.globalStack.pop(); var timeBelow = this.childTimerAccumulator.pop() ;var len = this.childTimerAccumulator.length; this.childTimerAccumulator[len - 1] += elapsedTime; return timeBelow; }
 	public printStack(): string {return this.globalStack.toString();}
+	public pushAsParent(name: string): void
+	{
+		this.globalStack.push(name);
+	}
+	public popAsParent(name: string): void
+	{
+		this.globalStack.pop();
+	}
 }
 
 
@@ -217,21 +262,21 @@ class ProfilerMap{
       private numElts: number;
 
       constructor(){
-	this.keys = Array();
-	this.values = Array();
-	this.numElts = 0;
+			this.keys = Array();
+			this.values = Array();
+			this.numElts = 0;
       }
       public getOrElseNew(n: string, prof: Profiler): Profile {
-      	     for(var i = 0; i < this.numElts; i++){
-	     	   if(this.keys[i] === n){
-		   	      return this.values[i];
+			 for(var i = 0; i < this.numElts; i++){
+			   if(this.keys[i] === n){
+				  return this.values[i];
 		   }	   
-	     }
-	     this.numElts += 1;
-	     this.keys.push(n);
-	     var np = new Profile(n, prof);
-	     this.values.push(np);
-	     return np;
+		 }
+		 this.numElts += 1;
+		 this.keys.push(n);
+		 var np = new Profile(n, prof);
+		 this.values.push(np);
+		 return np;
       }
       public getProfiles(): Profile[] { return this.values;}
       
@@ -247,33 +292,37 @@ class Profile{
     public totalTime: number;
     public adjustedTotalTime: number;
     
-    constructor(n: string,profiler: Profiler){
+    constructor(n: string,profiler: Profiler)
+	{
     	this.name = n;		    
-	this.profiler = profiler;
-	this.numInvocations = 0;
-	this.totalTime = 0;
-	this.adjustedTotalTime = 0;
+		this.profiler = profiler;
+		this.numInvocations = 0;
+		this.totalTime = 0;
+		this.adjustedTotalTime = 0;
     }
 
 
-    public report(): string {
-    	   return "function " + this.name + " invoked " + this.numInvocations + " times. Total time = " + this.totalTime;
-    
+    public report(): string 
+	{
+    	return "function " + this.name + " invoked " + this.numInvocations + " times. Total time = " + this.totalTime;
     }
 
-    public start(): void{
+    public start(): void
+	{
     	this.numInvocations++;
     	this.startTime = new Date().getTime();
-	this.parentCaller = this.profiler.pushAndGetParent(this.name)
-	
+		this.parentCaller = this.profiler.pushAndGetParent(this.name)
     }
-    public end(): void {
+	
+    public end(): void 
+	{
     	var endTime = new Date().getTime()
         var timeElapsed = endTime  - this.startTime;
-	this.totalTime += timeElapsed;
+		this.totalTime += timeElapsed;
         var totalChildTimes = this.profiler.endJob(timeElapsed);
-	this.adjustedTotalTime += (timeElapsed - totalChildTimes);
+		this.adjustedTotalTime += (timeElapsed - totalChildTimes);
     }
+	
     public toString(): string { return "profiler: " + this.name;}
 }
 
@@ -377,40 +426,23 @@ function modify_func(node){
 		{
 			var cb_fun = escodegen.generate(node["arguments"][0]);
 			var scb_name = call_name+"_line_"+ + node["loc"]["start"]["line"] + "_col_" + node["loc"]["start"]["column"];
-			var new_arg = "(function(foo){return (function(){var acb_name = \""+scb_name+"\"; var fun_prof = GlobalProfiler.getProfile(acb_name);fun_prof.start();foo();fun_prof.end();})})("+cb_fun+")";
+			var new_arg = "(function(foo){return (function(){var acb_name = \""+scb_name+"\";GlobalProfiler.pushAsParent(acb_name);foo();GlobalProfiler.popAsParent();})})("+cb_fun+")";
 			var new_arg_tree = esprima.parse(new_arg)["body"][0]["expression"]
-			
-			// node["body"] = []
-			// node["body"].push({
-							// "type": "VariableDeclaration",
-							// "declarations": [
-								// {
-									// "type": "VariableDeclarator",
-									// "id": {
-										// "type": "Identifier",
-										// "name": "profiler_cb_fun"
-									// },
-									// "init": new_arg_tree
-								// }
-							// ],
-							// "kind": "var"
-						// })
-			// node["body"].push({
-                // "type": "CallExpression",
-                // "callee": {
-                    // "type": "Identifier",
-                    // "name": "setTimeout"
-                // },
-                // "arguments": [
-                    // {
-                        // "type": "Identifier",
-                        // "name": "profiler_cb_fun"
-                    // },
-					// node["arguments"][1]
-                // ]})
 			node["arguments"][0] = new_arg_tree
 		}
 	}
+	// else if(node["type"] == "CallExpression" || node["type"] == "NewExpression")
+	// {
+		// var call_name = node["callee"]["name"]
+		// if(call_name == "Function")
+		// {
+			// var cb_fun = escodegen.generate(node["arguments"][0]);
+			// var scb_name = call_name+"_line_"+ + node["loc"]["start"]["line"] + "_col_" + node["loc"]["start"]["column"];
+			// var new_arg = "(function(foo){return (function(){var acb_name = \""+scb_name+"\";GlobalProfiler.pushAsParent(acb_name);foo();GlobalProfiler.popAsParent();})})("+cb_fun+")";
+			// var new_arg_tree = esprima.parse(new_arg)["body"][0]["expression"]
+			// node["arguments"][0] = new_arg_tree
+		// }
+	// }
 }
 
 

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<title>JS Profiler</title>
+</head>
+
+<script src="scripts/escodegen.browser.js"></script>
+<script src="scripts/esprima.js"></script>
+<script src="scripts/profiling.js"> </script>
+
+<script type="text/javascript">
+var profile = function () {
+   var prof = window.opener.report;
+   document.getElementById("outputBox").value = prof;
+}
+interval = setInterval(profile,1000);
+</script>
+
+<body style="background-color:#e5eecc;">
+<textarea class="results" id="outputBox" wrap="off" rows="25" cols="75" readonly></textarea>
+</body>
+</html>
