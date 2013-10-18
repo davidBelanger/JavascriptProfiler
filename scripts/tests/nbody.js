@@ -285,3 +285,9 @@ function runNBody(n) {
     return finalEnergy;
 }
 
+var repeat = function () {runNBody(Math.floor(Math.random()*15))};
+var repeat2 = function() {repeat();setTimeout(repeat2,1000)}
+
+repeat2();
+
+

@@ -82,3 +82,8 @@ function testFannKuch(n){
     //console.log(pf[0] + "\n" + "Pfannkuchen(" + n + ") = " + pf[1]);
     return pf[0] + "-" + pf[1];
 }
+
+
+var repeat = function () {testFannKuch(10)};
+setInterval(repeat, 1000);
+

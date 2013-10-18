@@ -44,6 +44,7 @@ class ProfilerFromSource{
 
 class Profiler {
 	private globalStack: string[];
+	private childTimerAccumulator: number[];
 	
 	private profilers: ProfilerMap;
 	public thingToRun: () => string;
@@ -55,6 +56,8 @@ class Profiler {
 		this.globalStack = Array();
 		this.edges = Array();
 		this.globalStack.push("root");
+		this.childTimerAccumulator = Array();
+		this.childTimerAccumulator.push(0);
   		this.thingToRun = callback;	
 		this.pathsFromRoot = Array();	      
 	}
@@ -70,8 +73,9 @@ class Profiler {
 	     var toReturn = "";
 	     ////////Specify all the profiling info to print out here
 	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
-	     	 		     	 function (p: Profile): number {return p.totalTime;}); 
-	     var numericalHistogramNames = new Array('Num Invocations', 'Total Time');				 
+	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
+					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
+	     var numericalHistogramNames = new Array('Num Invocations', 'Average Time Below','Average Self Time');				 
 	     
 	     ////////
 
@@ -79,9 +83,14 @@ class Profiler {
 	     	     toReturn += profs[i].report() + "\n";
 	     }
 	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     toReturn += '\n' + numericalHistogramNames[i] + "(sorted by amount)" + "\n";
+	     	     toReturn += '\n' + numericalHistogramNames[i] + "(sorted by percentage) " + "\n";
+
 	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
+		     var divId = '#container' + i;
+	     this.makeAwesomeHistogram(function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;},profs, divId,numericalHistogramNames[i]);
+
 	     }
+
 	     
 	    toReturn += 'Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10) + "\n";
 
@@ -90,6 +99,45 @@ class Profiler {
 	     //console.log(toReturn);
 
 	     return toReturn;  
+	}
+
+	private makeAwesomeHistogram(f: (Profile) => number, profs: Profile[],divId: string, name: string): void {
+			var total: number = 0;	  
+		var np = profs.length;
+		var arr = new Array(np);
+		for(var i = 0; i < np; i++){
+			arr[i] = f(profs[i]);
+			total += arr[i];
+		}
+		var mySeries = Array();
+		for(var i = 0; i < np; i++){
+			mySeries.push({name: profs[i].name,data: [arr[i]/total]})
+		}
+	
+       $(function () { 
+		     $(divId).highcharts({
+plotOptions: {
+                bar: {
+                    animation: false
+                }
+            },
+        chart: {     
+            type: 'bar'
+        },
+        title: {
+            text: name
+        },
+        xAxis: {
+            //categories: ['Apples']
+        },
+        yAxis: {
+            title: {
+                text: 'Percentage'
+            }
+        },
+        series: mySeries
+    });
+});
 	}
 
 	private makeCategoricalHistogram(arr: string[], numTake: number = 10): string {
@@ -103,12 +151,13 @@ class Profiler {
 		var np = keys.length 
 		var indices = new Array(np);
 		for(var i = 0; i < np; i++) indices[i] = i;
-
+		var total = arr.length;
 		indices.sort(function (x,y) {return counts[keys[y]] - counts[keys[x]]});
-		var toReturn = "";
+		var toReturn = "name\t\tnumber\t\tpercentage of total\n";
+
 		for(var i = 0; i < Math.min(numTake,np);i++){
 			var idx = indices[i];
-			toReturn += keys[idx] +  " " + counts[keys[idx]] + "\n" ;	
+			toReturn += keys[idx] +  "\t\t" + counts[keys[idx]] +"\t\t" + (100*counts[keys[idx]]/total) + "%\n" ;	
 		} 
 		return toReturn;	
 	}
@@ -121,12 +170,12 @@ class Profiler {
 			arr[i] = f(profs[i]);
 			total += arr[i];
 		}
-		var str: string = "";
+		var str: string = "name\t\tamount\t\tpercentage of total\n";
 
 		var sortedIndices = this.getSortedIndices(arr);
 		for(var i = 0; i < np; i++){
 			var is = sortedIndices[i];
-			str += profs[is].name + " " + (arr[is]/total) + "\n";
+			str += profs[is].name + "\t\t" + (arr[is]) + "\t\t"+  (100*arr[is]/total) + "%\n";
 		}
 		
 		return str;
@@ -146,13 +195,17 @@ class Profiler {
 
 	public pushAndGetParent(n: string): string {
 	        var idx =  this.globalStack.push(n);
+		this.childTimerAccumulator.push(0);
 		var parent = this.globalStack[idx - 2].toString();
 		this.edges.push(parent + "-->" + n);
-		this.pathsFromRoot.push(this.globalStack.toString())
+		
+		var start =  this.globalStack.length - 11;
+		var bottomOfStack = this.globalStack.slice(start);
+		this.pathsFromRoot.push(bottomOfStack.toString());
 		return parent;
 	}
-	public popStack(): void {this.globalStack.pop();}
-	public printStack(): string {return this.globalStack.toString()}
+	public endJob(elapsedTime: number): number {this.globalStack.pop(); var timeBelow = this.childTimerAccumulator.pop() ;var len = this.childTimerAccumulator.length; this.childTimerAccumulator[len - 1] += elapsedTime; return timeBelow; }
+	public printStack(): string {return this.globalStack.toString();}
 }
 
 
@@ -192,12 +245,14 @@ class Profile{
     private profiler: Profiler;
     public numInvocations: number;
     public totalTime: number;
+    public adjustedTotalTime: number;
     
     constructor(n: string,profiler: Profiler){
     	this.name = n;		    
 	this.profiler = profiler;
 	this.numInvocations = 0;
 	this.totalTime = 0;
+	this.adjustedTotalTime = 0;
     }
 
 
@@ -216,7 +271,8 @@ class Profile{
     	var endTime = new Date().getTime()
         var timeElapsed = endTime  - this.startTime;
 	this.totalTime += timeElapsed;
-        this.profiler.popStack();
+        var totalChildTimes = this.profiler.endJob(timeElapsed);
+	this.adjustedTotalTime += (timeElapsed - totalChildTimes);
     }
     public toString(): string { return "profiler: " + this.name;}
 }

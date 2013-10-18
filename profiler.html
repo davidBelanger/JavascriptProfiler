@@ -1,4 +1,4 @@
-
+sp
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -9,10 +9,14 @@
 <script src="scripts/escodegen.browser.js"></script>
 <script src="scripts/esprima.js"></script>
 <script src="scripts/profiling.js"> </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+
 <script type="text/javascript">
 called = false;
 function submitCode()
 {
+        document.getElementById("outputBox").value = "";
 	if(called)
 	{
 		clearInterval(interval);
@@ -26,7 +30,7 @@ function submitCode()
     document.getElementById("outputBox").value = initialProfile;
 
     var profile = function () {
-       document.getElementById("outputBox").value = "Post-Startup results of callbacks" +  prof.getReport();
+       document.getElementById("outputBox").value = "Post-Startup results of callbacks\n" +  prof.getReport();
     }
 	called = true
     interval = setInterval(profile,1000);
@@ -34,6 +38,7 @@ function submitCode()
 </script>
 
 <body style="background-color:#e5eecc;">
+
 <div id="content">
 	<div id="sourcecode">
 		<div class="headerText">Source Code:</div>
@@ -52,6 +57,14 @@ function submitCode()
 		Edit the code above and click "Submit Code" to see the result.
 	</div>
 </div>
+
+
+<div id="container0" style="width:59%; height:200px;"></div>
+<div id="container1" style="width:59%; height:200px;"></div>
+<div id="container2" style="width:59%; height:200px;"></div>
+
+
+
 
 </body>
 </html>
