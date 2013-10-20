@@ -39,6 +39,24 @@ collects timing, call-path, and call frequency information which can then be acc
 
 \section{Design}
 	
+	Our approach to the problem involves two steps. First, the code to be profiled is parsed using the 
+esprima parser (<esprima url>) which returns a syntax tree including line numbers and colums. This 
+syntax tree is then traversed recursively and all function definitions, return statements, timing 
+functions, and eval statements are detected and modified to include instrumentation code. Modifications 
+are made directly to the syntax tree and so when the modifications are complete, the modified syntax 
+tree is simply used to generate new code using the escodegen package(<escodegen url>). In the second 
+main step, this code is evaluated and profile information is gathered including call counts, function 
+timing, call edges, and call paths. This second step can be done within our standalone profiler, 
+profiler.html, or can be done within the user's application by replacing the code to be profiled 
+with the instrumented code and importing profiling.js. In the first case, profile information is 
+reported in the main page. In the second case, a popup window is opened which reports the same information.
+
+\subsection{Code Modification}
+	
+	
+
+\subsection{Profiling}
+
 	The profiler is defined completely in profiling.ts (which typescript then compiles to profiling.js) 
 and consists of three main classes: ProfileFromSource, Profiler, and Profile. The top level class 
 is ProfileFromSource which serves as an interface to the user. It has only three functions, a constructor 
@@ -49,9 +67,7 @@ maintains all global profile objects such as the call stack, call paths, and a l
 Finally, the Profile class maintains information about a specific function such as average time spent in 
 the function and number of invocations.
 
-\section{Interface}
-
-	To use the profiler as a library 
+\subsection{User Interfaces}
 
 \section{Discussion}
 
