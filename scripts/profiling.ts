@@ -77,9 +77,9 @@ class Profiler {
 	     var toReturn = "";
 	     ////////Specify all the profiling info to print out here
 	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
-	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
-					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
-	     var numericalHistogramNames = new Array('Num Invocations', 'Average Time Below','Average Self Time');				 
+	     	 		     	 function (p: Profile): number {return 100*p.totalTime/p.numInvocations;},
+					 function (p: Profile): number {return 100*p.adjustedTotalTime/p.numInvocations;}); 
+	     var numericalHistogramNames = new Array('Num Invocations (% of total Invocations)', 'Average Time Below (% of total time in instrumented functions)','Average Self Time (% of total time in instrumented functions)');				 
 
 	     for(var i = 0; i < numericalCriteria.length; i++){
 		     var divId = '#container' + i;
@@ -87,9 +87,9 @@ class Profiler {
 	     }
 
 	     
-	     this.makeAwesomeCategoricalHistogram(this.edges,5,'#container10', 'Top Hot Call Edges (parent --> child)');
+	     this.makeAwesomeCategoricalHistogram(this.edges,5,'#container10', 'Top Hot parent --> child Call Edge Frequencies (% of total edge calls)');
 
-	     this.makeAwesomeCategoricalHistogram(this.pathsFromRoot,5,'#container11','Top Hot Paths from Root');
+	     this.makeAwesomeCategoricalHistogram(this.pathsFromRoot,5,'#container11','Top Hot Paths from Root (% of all distinct paths from root)');
 	     
 	     return toReturn;  
 	}
