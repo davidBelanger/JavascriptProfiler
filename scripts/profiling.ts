@@ -3,7 +3,6 @@ declare function require(name:string);
 var esprima = require("esprima");
 var escodegen = require("escodegen");
 
-
 class ProfilerFromSource{
 	public mod_code : string;
 	public profiler: Profiler;
@@ -81,62 +80,20 @@ class Profiler {
 	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
 					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
 	     var numericalHistogramNames = new Array('Num Invocations', 'Average Time Below','Average Self Time');				 
-	     
-	     ////////
 
-	     for(var i = 0; i < profs.length; i++){
-	     	     toReturn += profs[i].report() + "\n";
-	     }
 	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     toReturn += '\n' + numericalHistogramNames[i] + "(sorted by percentage) " + "\n";
-
-	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
 		     var divId = '#container' + i;
-	     this.makeAwesomeHistogram(numericalCriteria[i],profs, divId,numericalHistogramNames[i]);
-
+	             this.makeAwesomeHistogram(numericalCriteria[i],profs, divId,numericalHistogramNames[i]);
 	     }
 
 	     
-	    toReturn += 'Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10) + "\n";
+	     this.makeAwesomeCategoricalHistogram(this.edges,5,'#container10', 'Top Hot Call Edges (parent --> child)');
 
-	     toReturn += 'Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10) + "\n";
+	     this.makeAwesomeCategoricalHistogram(this.pathsFromRoot,5,'#container11','Top Hot Paths from Root');
 	     
-	     //console.log(toReturn);
-
 	     return toReturn;  
 	}
-	
-	public getStringReport(): string { 
-	     var profs = this.profilers.getProfiles();
 
-	     var toReturn = "";
-	     ////////Specify all the profiling info to print out here
-	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
-	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
-					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
-	     var numericalHistogramNames = new Array('Num Invocations', 'Average Time Below','Average Self Time');				 
-	     
-	     ////////
-
-	     for(var i = 0; i < profs.length; i++){
-	     	     toReturn += profs[i].report() + "\n";
-	     }
-	     for(var i = 0; i < numericalCriteria.length; i++){
-	     	     toReturn += '\n' + numericalHistogramNames[i] + "(sorted by percentage) " + "\n";
-
-	     	     toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
-
-	     }
-
-	     
-	    toReturn += 'Top 10 Hot Call Edges (parent --> child)\n' + this.makeCategoricalHistogram(this.edges,10) + "\n";
-
-	     toReturn += 'Top 10 Hot Paths from Root\n' + this.makeCategoricalHistogram(this.pathsFromRoot,10) + "\n";
-	     
-	     //console.log(toReturn);
-
-	     return toReturn;  
-	}
 
 	private makeAwesomeHistogram(f: (Profile) => number, profs: Profile[],divId: string, name: string): void {
 			var total: number = 0;	  
@@ -177,7 +134,7 @@ plotOptions: {
 });
 	}
 
-	private makeCategoricalHistogram(arr: string[], numTake: number = 10): string {
+	private makeAwesomeCategoricalHistogram(arr: string[], numTake: number,divId: string, name: string): void {
 		var counts = {};
 		for(var i = 0; i < arr.length; i++){
 			var key = arr[i];
@@ -192,40 +149,44 @@ plotOptions: {
 		indices.sort(function (x,y) {return counts[keys[y]] - counts[keys[x]]});
 		var toReturn = "name\t\tnumber\t\tpercentage of total\n";
 
+		var mySeries = Array();
 		for(var i = 0; i < Math.min(numTake,np);i++){
 			var idx = indices[i];
-			toReturn += keys[idx] +  "\t\t" + counts[keys[idx]] +"\t\t" + (100*counts[keys[idx]]/total) + "%\n" ;	
+			var nam = keys[idx];
+			var dat = 100*counts[keys[idx]]/total;
+			console.log('pushing ' + nam + " " + dat);
+			mySeries.push({name: nam,data: [dat]})
 		} 
-		return toReturn;	
-	}
+
 	
-	private makeNumericalHistogram(f: (Profile) => number, profs: Profile[]): string {
-		var total: number = 0;	  
-		var np = profs.length;
-		var arr = new Array(np);
-		for(var i = 0; i < np; i++){
-			arr[i] = f(profs[i]);
-			total += arr[i];
-		}
-		var str: string = "name\t\tamount\t\tpercentage of total\n";
-
-		var sortedIndices = this.getSortedIndices(arr);
-		for(var i = 0; i < np; i++){
-			var is = sortedIndices[i];
-			str += profs[is].name + "\t\t" + (arr[is]) + "\t\t"+  (100*arr[is]/total) + "%\n";
-		}
+       $(function () { 
+		     $(divId).highcharts({
+plotOptions: {
+                bar: {
+                    animation: false
+                }
+            },
+        chart: {     
+            type: 'bar'
+        },
+        title: {
+            text: name
+        },
+        xAxis: {
+            //categories: ['Apples']
+        },
+        yAxis: {
+            title: {
+                text: 'Percentage'
+            }
+        },
+        series: mySeries
+    });
+});
 		
-		return str;
+	
 	}
-	public getSortedIndices(arr: number[]): number[]{
-	        var np = arr.length;
-		var indices = new Array(np);
-		for(var i = 0; i < np; i++) indices[i] = i;
 
-		indices.sort(function (x,y) {return arr[y] - arr[x]});
-
-		return indices;
-	}
 	public getProfile(name: string): Profile {
 	       return this.profilers.getOrElseNew(name,this);
 	}
