@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2012.10.3)  16 OCT 2013 17:14
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2012.10.3)  20 OCT 2013 18:36
 entering extended mode
 **C:/Users/Roy/Dropbox/CS630-SYS/JavascriptProfiler/doc/writeup.tex
 (C:/Users/Roy/Dropbox/CS630-SYS/JavascriptProfiler/doc/writeup.tex
@@ -165,14 +165,14 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 30.
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 ) [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] [2] [3]
 (C:\Users\Roy\Dropbox\CS630-SYS\JavascriptProfiler\doc\writeup.aux) ) 
 Here is how much of TeX's memory you used:
- 1796 strings out of 494045
- 22900 string characters out of 3145975
- 76658 words of memory out of 3000000
- 5100 multiletter control sequences out of 15000+200000
- 9489 words of font info for 36 fonts, out of 3000000 for 9000
+ 1798 strings out of 494045
+ 22933 string characters out of 3145975
+ 78658 words of memory out of 3000000
+ 5102 multiletter control sequences out of 15000+200000
+ 9796 words of font info for 37 fonts, out of 3000000 for 9000
  715 hyphenation exceptions out of 8191
  27i,6n,22p,306b,195s stack positions out of 5000i,500n,10000p,200000b,50000s
 <C:/Progra
@@ -180,9 +180,9 @@ m Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program
 Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Fil
 es (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files 
 (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on writeup.pdf (1 page, 55590 bytes).
+Output written on writeup.pdf (3 pages, 64475 bytes).
 PDF statistics:
- 22 PDF objects out of 1000 (max. 8388607)
+ 28 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
