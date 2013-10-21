@@ -289,6 +289,5 @@ function runNBody(n) {
 function doTest(){
 
     var got = runNBody(10);
-    console.log("got " + got);
     return got;
 }

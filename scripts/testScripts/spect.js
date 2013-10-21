@@ -49,11 +49,8 @@ function spectralnorm(n) {
 
 
 function doTest(){
-    console.log('running tests');
     var got =  spectralnorm(20);
-    console.log('got ' + got);
     return got;
 }
 
-//doTest();
 

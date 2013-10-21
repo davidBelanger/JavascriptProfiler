@@ -17,7 +17,6 @@ class ProfilerFromSource{
 	    var prog_tree = esprima.parse(orig_code,{"loc":true});
 	    node_apply(prog_tree,modify_func);//apply modifications here
 	    
-		// console.log(JSON.stringify(prog_tree, null, 4));
 	    this.mod_code = escodegen.generate(prog_tree);
 	    var callback: () => string; 
 	    this.profiler = new Profiler(callback);
@@ -154,7 +153,6 @@ plotOptions: {
 			var idx = indices[i];
 			var nam = keys[idx];
 			var dat = 100*counts[keys[idx]]/total;
-			console.log('pushing ' + nam + " " + dat);
 			mySeries.push({name: nam,data: [dat]})
 		} 
 

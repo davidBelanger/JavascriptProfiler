@@ -23,6 +23,8 @@ function bottomUpTree(item,depth){
 }
 
 
+
+function doTest(){
 var minDepth = 4;
 var n = 10;
 var maxDepth = Math.max(minDepth + 2, n);
@@ -45,3 +47,7 @@ for (var depth=minDepth; depth<=maxDepth; depth+=2){
 
 console.log("long lived tree of depth " + maxDepth + "\t check: " 
    + longLivedTree.itemCheck());
+
+    var result = iterations*2 + "\t trees of depth " + depth + "\t check: " + check;
+    return result;
+}
