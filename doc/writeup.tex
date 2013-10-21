@@ -25,7 +25,7 @@
 
 \title{JavaScript Profiler}
 \date{October 18, 2013}
-\author{Roy Adams and David Belinger}
+\author{Roy Adams and David Belanger}
 
 \maketitle
 
@@ -39,17 +39,19 @@ collects timing, call-path, and call frequency information which can then be acc
 
 \section{Design and Functionality}
 	
-	Our approach to the problem involves two steps. First, the code to be profiled is parsed using the 
-esprima parser which returns a syntax tree including line numbers and colums. This 
+Our approach to the problem involves two steps:
+\begin{enumerate}
+\item  The code to be profiled is parsed using the 
+esprima parser (http://esprima.org/), which returns a syntax tree including line numbers and colums. This 
 syntax tree is then traversed recursively and all function definitions, return statements, timing 
 functions, and eval statements are detected and modified to include instrumentation code. Modifications 
 are made directly to the syntax tree and so when the modifications are complete, the modified syntax 
-tree is simply used to generate new code using the escodegen package. In the second 
-main step, this code is evaluated and profile information is gathered including call counts, function 
-timing, call edges, and call paths. This second step can be done within our standalone profiler, 
+tree is simply used to generate new code using the escodegen package \\(https://github.com/Constellation/escodegen).
+\item The instrumented code is evaluated and profile information is gathered including call counts, function timing, call edges, and call paths. This second step can be done within our standalone profiler, 
 profiler.html, or can be done within the user's application by replacing the code to be profiled 
 with the instrumented code and importing profiling.js. In the first case, profile information is 
 reported in the main page. In the second case, a popup window is opened which reports the same information.
+\end{enumerate}
 
 \subsection{Code Modification}
 	
