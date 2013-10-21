@@ -43,8 +43,8 @@ Our approach to the problem involves two steps:
 \begin{enumerate}
 \item  The code to be profiled is parsed using the 
 esprima parser (http://esprima.org/), which returns a syntax tree including line numbers and colums. This 
-syntax tree is then traversed recursively and all function definitions, return statements, timing 
-functions, and eval statements are detected and modified to include instrumentation code. Modifications 
+syntax tree is then traversed recursively and all function definitions, return statements, and timing 
+functions are detected and modified to include instrumentation code. Modifications 
 are made directly to the syntax tree and so when the modifications are complete, the modified syntax 
 tree is simply used to generate new code using the escodegen package \\(https://github.com/Constellation/escodegen).
 \item The instrumented code is evaluated and profile information is gathered including call counts, function timing, call edges, and call paths. This second step can be done within our standalone profiler, 
@@ -67,7 +67,7 @@ and column where the function is defined. An advantage of this strategy is that 
 agregated regardless of whether the function is assigned to a new variable. A downside is that the programmer 
 must explicitly give the functions names is he/she want those names to show up in the profile. Also caught 
 during parsing are any calls to setTimeout and setInterval. These are modified to 
-indicate that the callback function passed is being called from the a timing function and indicate the 
+indicate that the callback function passed is being called from a timing function and indicate the 
 line and column number of the timing function call. 
 
 \subsection{Profiling}
