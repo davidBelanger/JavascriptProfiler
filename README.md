@@ -59,6 +59,16 @@ Usage:
 		</body>
 		</html>
 		
+Compiling profiling.ts:
+			
+		While we provide profiling.js, code was written using typescript. If it becomes necessary to 
+	compile new JS file from the original source this can be done using the typescript compiler 
+	(available at http://www.typescriptlang.org/). Once installed, profiling.ts can be compiled using:
+	
+		tsc scripts/profiling.ts
+		
+	from the application base directory.
+
 Testing:
 		
 		A set of scripts is provided for testing as well as a short HTML page the instruments the 
