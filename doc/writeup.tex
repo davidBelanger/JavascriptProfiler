@@ -106,6 +106,24 @@ and allow the user to interact with the DOM in any way he/she wants (subject to 
 window.report which is used to pass information to the report window).
 
 \section{Testing}
-	
+We provide a suite of tests in the scripts/testScripts
+directory. These are a selection of the tests from the Computer
+Language Benchmark Game (benchmarksgame.alioth.debian.org). The only
+modification is that we defined a function doTest() at the bottom of
+all of them that acts as a driver function and returns a string
+representing the results of the test's computation. The basic idea for
+the test suite is that for every file we do the following:
+\begin{enumerate}
+\item Run the original code (by calling doTest());
+\item Modify the code to be instrumented for profiling, and call
+  doTest().
+\item Assert that these two procedures returned the same results. 
+\end{enumerate}
+The goal of this test suite is to ensure that instrumentation doesn't
+change the output of javascript code. It does not ensure that the
+instrumented code interracts identically with the DOM, though it
+should, and this is something that we tested with simple examples on
+our own. Note, again, that there are security issues with running this
+test suite, since it calls eval
 
 \end{document}

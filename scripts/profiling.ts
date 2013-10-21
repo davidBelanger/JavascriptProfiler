@@ -36,10 +36,11 @@ class ProfilerFromSource{
 	}
 	public startUp(): string { return this.profiler.startUp();}
 	public getReport(): string {return this.profiler.getReport();}
+	public getStringReport(): string {return this.profiler.getStringReport();}
 	public getCodeFile(): string
 	{
-		// return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nwindow.open(\"../reporter.html\")\n" + this.mod_code;
-		return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nreporter = window.open(\"reporter.html\");\nsetInterval(function(){reporter.report = GlobalProfiler},1000);\n" + this.mod_code;
+		return "GlobalProfiler = new Profiler();\nsetInterval(function(){console.log(GlobalProfiler.getStringReport())},1000);\n" + this.mod_code;
+
 	}
 
 }
@@ -182,8 +183,93 @@ plotOptions: {
     });
 });
 		
-	
+
 	}
+
+
+         public getStringReport(): string { 
+             var profs = this.profilers.getProfiles();
+
+             var toReturn = "";
+             ////////Specify all the profiling info to print out here
+             var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
+	     	 		     	 function (p: Profile): number {return 100*p.totalTime/p.numInvocations;},
+					 function (p: Profile): number {return 100*p.adjustedTotalTime/p.numInvocations;}); 
+	     var numericalHistogramNames = new Array('Num Invocations (% of total Invocations)', 'Average Time Below (% of total time in instrumented functions)','Average Self Time (% of total time in instrumented functions)');				                             
+             
+             ////////
+
+             for(var i = 0; i < profs.length; i++){
+                          toReturn += profs[i].report() + "\n";
+             }
+             for(var i = 0; i < numericalCriteria.length; i++){
+                          toReturn += '\n' + numericalHistogramNames[i] + "(sorted by percentage) " + "\n";
+
+                          toReturn += this.makeNumericalHistogram(numericalCriteria[i],profs) + "\n";
+
+             }
+
+
+
+             
+             toReturn += 'Top Hot parent --> child Call Edge Frequencies (% of total edge calls)\n' + this.makeCategoricalHistogram(this.edges,5) + "\n";
+
+             toReturn += 'Top Hot Paths from Root (% of all distinct paths from root)\n'+ this.makeCategoricalHistogram(this.pathsFromRoot,5) + "\n";
+             
+             return toReturn;  
+        }
+
+
+
+        private makeNumericalHistogram(f: (Profile) => number, profs: Profile[]): string {
+                var total: number = 0;          
+                var np = profs.length;
+                var arr = new Array(np);
+                for(var i = 0; i < np; i++){
+                        arr[i] = f(profs[i]);
+                        total += arr[i];
+                }
+                var str: string = "name\t\tamount\t\tpercentage of total\n";
+
+                var sortedIndices = this.getSortedIndices(arr);
+                for(var i = 0; i < np; i++){
+                        var is = sortedIndices[i];
+                        str += profs[is].name + "\t\t" + (arr[is]) + "\t\t"+  (100*arr[is]/total) + "%\n";
+                }
+                
+                return str;
+        }
+        public getSortedIndices(arr: number[]): number[]{
+                var np = arr.length;
+                var indices = new Array(np);
+                for(var i = 0; i < np; i++) indices[i] = i;
+
+                indices.sort(function (x,y) {return arr[y] - arr[x]});
+
+                return indices;
+        }
+
+        private makeCategoricalHistogram(arr: string[], numTake: number = 10): string {
+                var counts = {};
+                for(var i = 0; i < arr.length; i++){
+                        var key = arr[i];
+                        if(counts[key] == undefined) counts[key] = 0;
+                        counts[key] +=1;        
+                }
+                var keys = Object.keys(counts);
+                var np = keys.length 
+                var indices = new Array(np);
+                for(var i = 0; i < np; i++) indices[i] = i;
+                var total = arr.length;
+                indices.sort(function (x,y) {return counts[keys[y]] - counts[keys[x]]});
+                var toReturn = "name\t\tnumber\t\tpercentage of total\n";
+
+                for(var i = 0; i < Math.min(numTake,np);i++){
+                        var idx = indices[i];
+                        toReturn += keys[idx] +  "\t\t" + counts[keys[idx]] +"\t\t" + (100*counts[keys[idx]]/total) + "%\n" ;        
+                } 
+                return toReturn;        
+        }
 
 	public getProfile(name: string): Profile {
 	       return this.profilers.getOrElseNew(name,this);
