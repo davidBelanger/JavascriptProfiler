@@ -56,7 +56,7 @@ the same information is written to the browser console.
 
 \subsection{Code Modification}
 	
-	To modify the syntax tree we traverse it recursively, applying a modification function at each node.
+	To modify the syntax tree, we traverse it recursively, applying a modification function at each node.
 All function declarations and function expressions are modified by adding code to the beginning and end 
 of each function. All return statements are modified to run some instrumentation code prior to returning. 
 In this way all user defined functions will execute profiling code regardless of how or from where 
@@ -71,11 +71,12 @@ indicate that the callback function passed is being called from the a timing fun
 line and column number of the timing function call. 
 
 \subsection{Profiling}
-	The profiler is defined completely in profiling.ts (which typescript then compiles to profiling.js) 
+	The profiler is defined completely in profiling.ts (which the
+        typescript compiler then compiles to profiling.js) 
 and consists of three main classes
 \begin{itemize}
 \item \textit{ProfilerFromSource} serves as an interface to the
-  user. Its constructor modifies input javascript code using the
+  user. Its constructor modifies input JavaScript code using the
   techniques from the previous subsection, and it provides
   functionality for reporting profiling info both via plaintext
   reports and using the HighCharts library. The method startUp(), executes the
@@ -83,7 +84,9 @@ and consists of three main classes
   ends, due to the event-driven nature of many JavaScript
   applications. getReport() and getStringReport() return a summary of
   the current profiling information, to HighCharts images in wrapper
-  html, or to a string. 
+  html, or to a string. In event-driven applications, users should
+  call getReport() or getStringReport() periodically, not just at the
+  beginning.
 
 \item \textit{Profiler} stores and  maintains all global profile
   objects such as a call stack (an array of strings that gets pushed
@@ -122,7 +125,7 @@ Profiler has methods called 'getReport()' and 'getStringReport()' that
 return profiling info to be displayed to the user. In practice, we
 wrap these in a setInterval so that profiling is interwoven with
 execution, which is particularly important because of the event-driven
-nature of javascript. The getReport() method makes nice-looking
+nature of JavaScript. The getReport() method makes nice-looking
 figures using the third-party HighCharts library, and we render these
 to the DOM. getStringReport() returns a string version of the same
 info, which is useful if you want to profile code that interacts with
@@ -156,7 +159,7 @@ won't increase its depth.
 \end{itemize}
 
 Note that all our timing metrics may have high variance and limited
-reproducibility due to the event-driven nature of many javascript
+reproducibility due to the event-driven nature of many JavaScript
 applications and the fact that different asynchronous callbacks can be
 interwoven arbitrarily. 
 
@@ -242,14 +245,14 @@ the test suite is that for every file we do the following:
 \item Assert that these two procedures returned the same results. 
 \end{enumerate}
 The goal of this test suite is to ensure that instrumentation doesn't
-change the output of javascript code. It does not assert that the
+change the output of JavaScript code. It does not assert that the
 instrumented code interracts identically with the DOM, though it
 should, and this is something that we tested with simple examples on
 our own. Note, again, that there are security issues with running this
 test suite, since it calls eval on the test scripts. 
 
-We also provide a directory scripts/tests, which contain analogous
-versions of these scripts, but that execute computation, when sourced
+We also provide a directory scripts/tests, which contains analogous
+versions of these scripts that execute computation when sourced
 as a script, and don't require running doTests(). These can be used as
 examples to be pasted into profiler.html.
 
@@ -272,4 +275,7 @@ line with the option '--allow-file-access-from-files. '
 \end{document}
 
 \section{Compilation from TypeScript Source}
-We compile scripts/profiling.ts to scripts/profiling.js
+We compile scripts/profiling.ts to scripts/profiling.js using the
+typescript compiler. 
+
+
