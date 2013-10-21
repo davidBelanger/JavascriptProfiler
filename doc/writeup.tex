@@ -91,8 +91,12 @@ and consists of three main classes
   functions. It has logic for aggregating timing information and for
   producing a function's `self time,' where the time spent in
   instrumented subfunctions is subtracted off from the timing
-  assessment of the function. Finally, the Profiler also defines various methods used in producing the
- reports that ProfilerFromSource returns.
+  assessment of the function. Profiler also provides an interface to 
+  push and pop dummy functions to the call stack so that they 
+  will show up as parents in call paths, but not be profiled. 
+  These are used to indicate where timing functions are set. 
+  Finally, the Profiler also defines various methods used in producing the
+ reports that ProfilerFromSource returns. 
 
 \item \textit{Profile} is an object associated with every
   function. Note that we do not have one Profile per function call,
@@ -107,13 +111,7 @@ and consists of three main classes
   the function to know its name, are the only things that need to be
   added to code in order instrument it. These start() and end()
   methods communicate with the Profiler object to push the function on
-  and off the stack, log various performance metrics, etc. 
-
-TODO: Roy: is
-  there something special we do to handle setIntervals and setTimeouts
-  when we push/pop them off the stack? is it related to this sentence: ` All functions passed to a timing function are wrapped in 
-a function that pushes a dummy function indicating the type of timing function that is being set and its 
-location in the original code.'?
+  and off the stack, log various performance metrics, etc.
 
 \end{itemize}
 
