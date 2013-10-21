@@ -40,11 +40,11 @@ collects timing, call-path, and call frequency information which can then be acc
 \section{Design and Functionality}
 	
 	Our approach to the problem involves two steps. First, the code to be profiled is parsed using the 
-esprima parser (<esprima url>) which returns a syntax tree including line numbers and colums. This 
+esprima parser which returns a syntax tree including line numbers and colums. This 
 syntax tree is then traversed recursively and all function definitions, return statements, timing 
 functions, and eval statements are detected and modified to include instrumentation code. Modifications 
 are made directly to the syntax tree and so when the modifications are complete, the modified syntax 
-tree is simply used to generate new code using the escodegen package(<escodegen url>). In the second 
+tree is simply used to generate new code using the escodegen package. In the second 
 main step, this code is evaluated and profile information is gathered including call counts, function 
 timing, call edges, and call paths. This second step can be done within our standalone profiler, 
 profiler.html, or can be done within the user's application by replacing the code to be profiled 
@@ -104,7 +104,15 @@ These reports have the following info:
 
 
 \subsection{Asynchronous Callbacks and Arbitrarily-Deep Stacks}
-TODO: Roy discusses AC's
+	By directly modifying function definitions, asynchronous callbacks do not interfere with 
+the profiling. Any asynchronous callbacks will trigger the profiling code like any other call. 
+Timing functions, such as setTimeout and setInterval, have also been modified so 
+that in the profile report, the location of the original call to setTimeout or setInterval 
+is reported as the calling function. In order to profile asynchronously called functions, we create
+our own setInterval function which reports the most current profile stats every second. In this 
+way, a user can set a program with asynchronous callbacks running and check back periodically 
+to see what the current state of the profile is or interact with the program to trigger asynchronous 
+callbacks and check the effect on the profile. 
 TODO: David discusses Deep stacks
 
 \subsection{User Interfaces}
@@ -157,11 +165,10 @@ turn off these safeguards, close chrome and re-launch chrome from the command
 line with the option '--allow-file-access-from-files. '
 
 \section{Third-Party Packages Used}
-TODO: give url and brief explanation
 \begin{enumerate}
-\item jquery
-\item esprima
-\item escodegen
-\highcharts
+\item jquery - Allows cleaner access to the DOM. Needed for highcharts. (http://jquery.com/)
+\item esprima - Parses JavaScript code and returns a syntax tree. (http://esprima.org/)
+\item escodegen - Generates executable JavaScript code from an esprima style syntax tree. \\(https://github.com/Constellation/escodegen)
+\item highcharts - JS library that produces formatted plots. (http://www.highcharts.com/)
 \end{enumerate}
 \end{document}
