@@ -92,7 +92,8 @@ Documentation:
 	
 Dependencies:
 	
-		The profiler depends on the jquery, highcharts, esprima, and escodegen libraries. jquery and highcharts 
-	are retrieved from their respective websites and esprima and escodegen are provided in the scripts/ directory. 
-	it is unnecessary to install any other libraries.
+		The profiler depends on the jquery, highcharts, esprima, and escodegen libraries. 
+	jquery and highcharts are retrieved from their respective websites and esprima and 
+	escodegen are provided in the scripts/ directory. it is unnecessary to install any 
+	other libraries.
 	
