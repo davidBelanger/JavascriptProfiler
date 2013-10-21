@@ -1,7 +1,6 @@
-var fs = require('fs');
-declare function require(name:string);
-var esprima = require("esprima");
-var escodegen = require("escodegen");
+declare var esprima;
+declare var $;
+declare var escodegen;
 
 class ProfilerFromSource{
 	public mod_code : string;
