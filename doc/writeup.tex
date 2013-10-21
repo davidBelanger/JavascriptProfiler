@@ -37,9 +37,7 @@ be called either as an imported library or via a simple HTML interface that allo
 paste in JavaScript code he or she wants to profile. During a run of the input script, the profiler 
 collects timing, call-path, and call frequency information which can then be accessed as a formatted output. 
 
-\section{Functionality}
-
-\section{Design}
+\section{Design and Functionality}
 	
 	Our approach to the problem involves two steps. First, the code to be profiled is parsed using the 
 esprima parser (<esprima url>) which returns a syntax tree including line numbers and colums. This 
@@ -105,8 +103,9 @@ and replaces the original code file with the new modified code and runs his/her 
 as normal. The profiler will then open a popup that report profile information every second while the
 original program is running. This method allows the user to run the profiler in any html application 
 and allow the user to interact with the DOM in any way he/she wants (subject to not overwriting 
-window.report).
+window.report which is used to pass information to the report window).
 
-\section{Discussion}
+\section{Testing}
+	
 
 \end{document}
