@@ -176,12 +176,26 @@ functions from third parties.
 the profiling. Any asynchronous callbacks will trigger the profiling code like any other call. 
 Timing functions, such as setTimeout and setInterval, have also been modified so 
 that in the profile report, the location of the original call to setTimeout or setInterval 
-is reported as the calling function. In order to profile asynchronously called functions, we create
-our own setInterval function which reports the most current profile stats every second. In this 
-way, a user can set a program with asynchronous callbacks running and check back periodically 
-to see what the current state of the profile is or interact with the program to trigger asynchronous 
-callbacks and check the effect on the profile. 
-TODO: David discusses Deep stacks
+is reported as the calling function. In order to profile
+asynchronously called functions, we also wrap Profiler.getReport() in
+a setInterval at the top level.  In this way, a user can set a program
+with asynchronous callbacks running and check back periodically to see
+what the current state of the profile is or interact with the program
+to trigger asynchronous  callbacks and check the effect on the
+profile. Since our profiling aggregates over all time, we can't
+capture non-stationarity of the function-use and timing distribution, however. 
+
+Our Profile objects are associated with functions, not function calls,
+so we will be able to aggregate information about multiple calls to a
+function and identify them all as being associated with the same
+thing. This means that  if a function calls itself recursively, all of
+these calls will be grouped together properly. We can also effectively
+handle the common programming pattern in JavaScript of calling
+setTimeout with a function that checks some condition and if it is
+false, it calls this same setTimeout construct recursively. The only issue we will
+encounter if we have arbitrarily-deep stacks is that our report on
+'hot paths', will likely only include these paths from the root
+associated with a single arbitrarily-deep stack. 
 
 \subsection{User Interfaces}
 There are two main ways to interface with the profiler. 
