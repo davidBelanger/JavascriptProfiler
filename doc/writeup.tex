@@ -191,6 +191,11 @@ should, and this is something that we tested with simple examples on
 our own. Note, again, that there are security issues with running this
 test suite, since it calls eval on the test scripts. 
 
+We also provide a directory scripts/tests, which contain analogous
+versions of these scripts, but that execute computation, when sourced
+as a script, and don't require running doTests(). These can be used as
+examples to be pasted into profiler.html.
+
 \textit{Note for running the test suite in Chrome: }\\
 The tests are saved on the file system and we have not made them
 available through http requests. Therefore you need to run a jquery
@@ -200,7 +205,9 @@ line with the option '--allow-file-access-from-files. '
 
 \section{Third-Party Packages Used}
 \begin{enumerate}
-\item jquery - Allows cleaner access to the DOM. Needed for highcharts. (http://jquery.com/)
+\item jquery - Allows cleaner access to the DOM and provides a means
+  to get scripts directly from the local filesystem. Needed for highcharts
+  and the test suite. (http://jquery.com/)
 \item esprima - Parses JavaScript code and returns a syntax tree. (http://esprima.org/)
 \item escodegen - Generates executable JavaScript code from an esprima style syntax tree. \\(https://github.com/Constellation/escodegen)
 \item highcharts - JS library that produces formatted plots. (http://www.highcharts.com/)
