@@ -96,11 +96,45 @@ to the DOM. getStringReport() returns a string version of the same
 info, which is useful if you want to profile code that interacts with
 the DOM and will be dumping profiler info via console.log. 
 
-These reports have the following info:
+
+For each instrumented function FOO, we report:
 \begin{itemize}
-\item TODO
-\item  TODO
+\item \textit{Num Invocations}: Of all calls to
+  instrumented functions, the percentage that were calls to FOO. 
+\item  \textit{Average Time Below}: Percentage of total time in
+  instrumented functions that we spent in a stack below FOO (i.e. the1
+  time spent by FOO and all of its children). 
+\item \textit{Average Self Time}: Percentage of total time in
+  instrumented functions that was spent within FOO and not in
+  functions that it calls that are instrumented. 
 \end{itemize}
+
+We also report two more metrics:
+\begin{itemize}
+\item \textit{Top Parent-Child Call Frequencies}: The pairs of
+parent-child functions that are called most frequently. We report the
+top 5 pairs, but the call percentage is normalized across all observed
+parent-child pairs.
+\item \textit{Top Hot Paths from Root}: The stack traces all the way from the root
+that are most frequent. Note that the presence of recursive functions
+will make this report uninformative. However, it is robust to
+asynchronous callbacks, like setTimeout(), that call themselves. This
+will only be considered as a single depth in the stack. Each call
+won't increase its depth. 
+\end{itemize}
+
+Note that all our timing metrics may have high variance and limited
+reproducibility due to the event-driven nature of many javascript
+applications and the fact that different asynchronous callbacks can be
+interwoven arbitrarily. 
+
+In addition, note that these metrics, both for timing, and
+numbers of invocations, are only aggregated across the functions that
+have been instrumented. It is possible, for example, that there are
+functions from third-party libraries that are called more than any
+profiled function. Similarly, when we report the self-time for a
+function, we do not subtract off the time spent in non-profiled
+functions from third parties. 
 
 
 \subsection{Asynchronous Callbacks and Arbitrarily-Deep Stacks}
@@ -162,6 +196,6 @@ TODO: give url and brief explanation
 \item jquery
 \item esprima
 \item escodegen
-\highcharts
+\item highcharts
 \end{enumerate}
 \end{document}

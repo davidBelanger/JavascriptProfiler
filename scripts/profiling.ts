@@ -77,8 +77,8 @@ class Profiler {
 	     var toReturn = "";
 	     ////////Specify all the profiling info to print out here
 	     var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
-	     	 		     	 function (p: Profile): number {return 100*p.totalTime/p.numInvocations;},
-					 function (p: Profile): number {return 100*p.adjustedTotalTime/p.numInvocations;}); 
+	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
+					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
 	     var numericalHistogramNames = new Array('Num Invocations (% of total Invocations)', 'Average Time Below (% of total time in instrumented functions)','Average Self Time (% of total time in instrumented functions)');				 
 
 	     for(var i = 0; i < numericalCriteria.length; i++){
@@ -105,7 +105,7 @@ class Profiler {
 		}
 		var mySeries = Array();
 		for(var i = 0; i < np; i++){
-			mySeries.push({name: profs[i].name,data: [arr[i]/total]})
+			mySeries.push({name: profs[i].name,data: [100*arr[i]/total]})
 		}
 	
        $(function () { 
@@ -193,8 +193,8 @@ plotOptions: {
              var toReturn = "";
              ////////Specify all the profiling info to print out here
              var numericalCriteria = new Array(function (p: Profile): number {return p.numInvocations;} , 
-	     	 		     	 function (p: Profile): number {return 100*p.totalTime/p.numInvocations;},
-					 function (p: Profile): number {return 100*p.adjustedTotalTime/p.numInvocations;}); 
+	     	 		     	 function (p: Profile): number {return p.totalTime/p.numInvocations;},
+					 function (p: Profile): number {return p.adjustedTotalTime/p.numInvocations;}); 
 	     var numericalHistogramNames = new Array('Num Invocations (% of total Invocations)', 'Average Time Below (% of total time in instrumented functions)','Average Self Time (% of total time in instrumented functions)');				                             
              
              ////////
