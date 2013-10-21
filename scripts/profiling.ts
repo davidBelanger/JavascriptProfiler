@@ -400,6 +400,7 @@ function node_apply(tree,func) {
 	func(tree);
 }
 
+
 function modify_func(node){
 	// If node is a standard function declaration 
 	// insert enter code at the beginning and 
@@ -481,11 +482,16 @@ function modify_func(node){
 		// var call_name = node["callee"]["name"]
 		// if(call_name == "Function")
 		// {
-			// var cb_fun = escodegen.generate(node["arguments"][0]);
-			// var scb_name = call_name+"_line_"+ + node["loc"]["start"]["line"] + "_col_" + node["loc"]["start"]["column"];
-			// var new_arg = "(function(foo){return (function(){var acb_name = \""+scb_name+"\";GlobalProfiler.pushAsParent(acb_name);foo();GlobalProfiler.popAsParent();})})("+cb_fun+")";
+			// fname = "anon_line_" + node["callee"]["loc"]["start"]["line"] + "_col_" + node["callee"]["loc"]["start"]["column"]
+			// // code executed upon entry
+			// var ent_code = "\"var fun_prof = GlobalProfiler.getProfile(fn);fun_prof.start();\""
+			// // code executed upon return
+			// var ex_code = "\";fun_prof.end();\""
+			// var old_arg = node["arguments"].pop();
+			// var new_arg = "(function(foo,fn){var tmp_prof = new ProfileFromSource(foo); var ret = " + ent_code + " + tmp_prof.mod_code + " + ex_code + "; return ret;})(inp,\"" + fname + "\")";
 			// var new_arg_tree = esprima.parse(new_arg)["body"][0]["expression"]
-			// node["arguments"][0] = new_arg_tree
+			// new_arg_tree["arguments"][0] = old_arg;
+			// node["arguments"].push(new_arg_tree);
 		// }
 	// }
 }

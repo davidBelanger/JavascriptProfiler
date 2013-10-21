@@ -11,11 +11,12 @@
 <body>
 
 <input type="text" id="clock">
-<script language=javascript>
+<script language="text/javascript">
 GlobalProfiler = new Profiler();
 window.gprof = GlobalProfiler;
-reporter = window.open("reporter.html");
-setInterval(function(){reporter.report = GlobalProfiler},1000);
+//reporter = window.open("reporter.html");
+
+setInterval(function(){GlobalProfiler.getReport();},1000);
 function foo(a, b) {
     var fun_prof = GlobalProfiler.getProfile('foo');
     fun_prof.start();
