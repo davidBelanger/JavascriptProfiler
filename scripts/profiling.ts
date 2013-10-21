@@ -1,7 +1,6 @@
-var fs = require('fs');
-declare function require(name:string);
-var esprima = require("esprima");
-var escodegen = require("escodegen");
+declare var esprima;
+declare var $;
+declare var escodegen;
 
 class ProfilerFromSource{
 	public mod_code : string;
@@ -488,7 +487,7 @@ function modify_func(node){
 			// // code executed upon return
 			// var ex_code = "\";fun_prof.end();\""
 			// var old_arg = node["arguments"].pop();
-			// var new_arg = "(function(foo,fn){var tmp_prof = new ProfileFromSource(foo); var ret = " + ent_code + " + tmp_prof.mod_code + " + ex_code + "; return ret;})(inp,\"" + fname + "\")";
+			// var new_arg = "(function(foo,fn){var mcode = escodegen.generate(node_apply(esprima.parse(\"function(){\"+foo+\"}\"),modify_func)[\"body\"][\"body\"]); var ret = " + ent_code + " + mcode + " + ex_code + "; return ret;})(inp,\"" + fname + "\")";
 			// var new_arg_tree = esprima.parse(new_arg)["body"][0]["expression"]
 			// new_arg_tree["arguments"][0] = old_arg;
 			// node["arguments"].push(new_arg_tree);
