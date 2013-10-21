@@ -12,22 +12,6 @@
 <script src="http://code.highcharts.com/highcharts.js"></script>
 
 <script type="text/javascript">
-var ni = document.getElementById('myDiv');
-var c0 = document.createElement("div");
-var c1 = document.createElement("div");
-var c2 = document.createElement("div");
-var c10 = document.createElement("div");
-var c11 = document.createElement("div");
-c0.setAttribute("id","container0");
-c1.setAttribute("id","container1");
-c2.setAttribute("id","container2");
-c10.setAttribute("id","container10");
-c11.setAttribute("id","container11");
-ni.appendChild(c0)
-ni.appendChild(c1)
-ni.appendChild(c2)
-ni.appendChild(c10)
-ni.appendChild(c11)
 var profile = function () {
    //var prof = window.opener.report;
    //document.getElementById("outputBox").value = prof;
@@ -38,8 +22,7 @@ interval = setInterval(profile,1000);
 
 <body style="background-color:#e5eecc;">
 <!--<textarea class="results" id="outputBox" wrap="off" rows="25" cols="75" readonly></textarea>-->
-
-<div id="myDiv"> </div>
+<div id="content">
 
 </body>
 </html>
