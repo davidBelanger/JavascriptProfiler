@@ -50,7 +50,8 @@ tree is simply used to generate new code using the escodegen package \\(https://
 \item The instrumented code is evaluated and profile information is gathered including call counts, function timing, call edges, and call paths. This second step can be done within our standalone profiler, 
 profiler.html, or can be done within the user's application by replacing the code to be profiled 
 with the instrumented code and importing profiling.js. In the first case, profile information is 
-reported in the main page. In the second case, a popup window is opened which reports the same information.
+reported in the main page. In the second case, a plain-text version of
+the same information is written to the browser console.
 \end{enumerate}
 
 \subsection{Code Modification}
@@ -70,22 +71,53 @@ indicate that the callback function passed is being called from the a timing fun
 line and column number of the timing function call. 
 
 \subsection{Profiling}
-
 	The profiler is defined completely in profiling.ts (which typescript then compiles to profiling.js) 
-and consists of three main classes: ProfileFromSource, Profiler, and Profile. The top level class 
-is ProfileFromSource which serves as an interface to the user. It has three main functions, a constructor 
-which modifies the input code, startUp which runs the modified code and collects profile information, 
-and getReport which compiles the profile information and returns a formatted string. Underneath this 
-is the Profiler class which does most of the leg-work in our profiler. The Profiler class stores and 
-maintains all global profile objects such as the call stack, call paths, and a list of defined functions. 
-Finally, the Profile class maintains information about a specific function such as average time spent in 
-the function and number of invocations. When a user defined function, call it Foo, is called it calls the Profiler member 
-function getProfile which searches the list of profile functions already created for a matching profile 
-and creates a new profile if one is not found. Foo then calls Profile.start which pushes Foo onto the 
-call stack and begins timing. Finally, just prior to returning, Foo calls Profile.end which pops Foo from 
-the call stack and does some timing calculations. All functions passed to a timeing function are wrapped in 
+and consists of three main classes
+\begin{itemize}
+\item \textit{ProfilerFromSource} serves as an interface to the
+  user. Its constructor modifies input javascript code using the
+  techniques from the previous subsection, and it provides
+  functionality for reporting profiling info both via plaintext
+  reports and using the HighCharts library. The method startUp(), executes the
+  instrumented JavaScript code, which may not mean that computation
+  ends, due to the event-driven nature of many JavaScript
+  applications. getReport() and getStringReport() return a summary of
+  the current profiling information, to HighCharts images in wrapper
+  html, or to a string. 
+
+\item \textit{Profiler} stores and  maintains all global profile
+  objects such as a call stack (an array of strings that gets pushed
+  and popped), call paths, and a list of defined
+  functions. It has logic for aggregating timing information and for
+  producing a function's `self time,' where the time spent in
+  instrumented subfunctions is subtracted off from the timing
+  assessment of the function. Finally, the Profiler also defines various methods used in producing the
+ reports that ProfilerFromSource returns.
+
+\item \textit{Profile} is an object associated with every
+  function. Note that we do not have one Profile per function call,
+  but per function. The functions are indexed by name (either the name
+  they have in the code, or their line and column numbers for
+  anonymous functions). The Profiler keeps an associate array from
+  function names to these Profile objects. When a function is
+  executed, it sets profile= Profiler.getProfile() and increments timing
+  information and invocation count information stored in it. It then
+  calls profile.start(), does what the un-instrumented code did, and
+  then calls profile.end(). These three functions, plus a member for
+  the function to know its name, are the only things that need to be
+  added to code in order instrument it. These start() and end()
+  methods communicate with the Profiler object to push the function on
+  and off the stack, log various performance metrics, etc. 
+
+TODO: Roy: is
+  there something special we do to handle setIntervals and setTimeouts
+  when we push/pop them off the stack? is it related to this sentence: ` All functions passed to a timing function are wrapped in 
 a function that pushes a dummy function indicating the type of timing function that is being set and its 
-location in the original code.
+location in the original code.'?
+
+\end{itemize}
+
+
 
 \subsection{Profiler Output}
 Profiler has methods called 'getReport()' and 'getStringReport()' that
@@ -152,24 +184,35 @@ callbacks and check the effect on the profile.
 TODO: David discusses Deep stacks
 
 \subsection{User Interfaces}
-	There are two main ways to interface with the profiler. The first and simplest way is to use 
-profiler.html which can be run in any browser. This allows the user to paste in any JS code. It 
-parses the code and then evaluates the modified code and updates profile statistics every second. 
+There are two main ways to interface with the profiler. 
+
+\begin{itemize}
+\item For simple JavaScript code, particularly code that doesn't
+  interract with the DOM, we recommend using  profiler.html, which can
+  be run in any browser, allows the user to paste in any JS code and
+  getting profiling information. It parses the code and then evaluates the modified code and updates profile statistics every second. 
 This is obviously not intended as a server side interface as simply evaling arbitrary code is 
 about as unsecure as it is possible to be. Another caveat to this interface is that the JavaScript 
 code can only have very limited if any interaction with the DOM without messing up the profiling 
 environment. Much JavaScript is heavily interactive so this will not be the interface of choice 
 for many situations. It is instead intended as an interface to quickly and simply profile standalone 
 code fragments.
-	We consider the second interface to be the typical use case. To profile code, the user may 
+
+\item  An alternative use case is where the user takes his or her
+  JavaScript code and uses our tools to produce new instrumented code
+  that they can swap out in their application. In this mode, it writes
+  profiling info to console, so the idea is that it won't interfere
+  with the functionality of code that interracts with the DOM or
+  requires network traffic. To generate instrumented code, the user may 
 open gen\_prof\_code.html and paste in any code as before. The code is then modified and 
 the modified code is output to the window. The user then copies this new code to a new JS file 
 to be used in place of the original file. To run the profiler, the user simply imports profiling.js
 and replaces the original code file with the new modified code and runs his/her html application 
-as normal. The profiler will then open a popup that report profile information every second while the
-original program is running. This method allows the user to run the profiler in any html application 
-and allow the user to interact with the DOM in any way he/she wants (subject to not overwriting 
-window.report which is used to pass information to the report window).
+as normal. The profiler will write its reports (updated every second)
+to the developer console. If you would like the profiler to print less
+frequently, change the setInterval call on line 42 of profiling.ts
+and recompile using the typescript compiler. 
+\end{itemize}
 
 \section{Testing}
 We provide a suite of tests in the scripts/testScripts
@@ -215,3 +258,6 @@ line with the option '--allow-file-access-from-files. '
 \item highcharts - JS library that produces formatted plots. (http://www.highcharts.com/)
 \end{enumerate}
 \end{document}
+
+\section{Compilation from TypeScript Source}
+We compile scripts/profiling.ts to scripts/profiling.js
