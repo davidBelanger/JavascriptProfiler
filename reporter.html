@@ -8,16 +8,27 @@
 <script src="scripts/escodegen.browser.js"></script>
 <script src="scripts/esprima.js"></script>
 <script src="scripts/profiling.js"> </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
 
 <script type="text/javascript">
 var profile = function () {
-   var prof = window.opener.report;
-   document.getElementById("outputBox").value = prof;
+   //var prof = window.opener.report;
+   //document.getElementById("outputBox").value = prof;
+   var localReport = window.report
+   localReport.getReport()
 }
 interval = setInterval(profile,1000);
 </script>
 
 <body style="background-color:#e5eecc;">
-<textarea class="results" id="outputBox" wrap="off" rows="25" cols="75" readonly></textarea>
+<!--<textarea class="results" id="outputBox" wrap="off" rows="25" cols="75" readonly></textarea>-->
+
+	<div id="container0" style="width:59%; height:200px;"></div>
+	<div id="container1" style="width:59%; height:200px;"></div>
+	<div id="container2" style="width:59%; height:200px;"></div>
+	<div id="container10" style="width:59%; height:200px;"></div>
+	<div id="container11" style="width:59%; height:200px;"></div>
+
 </body>
 </html>

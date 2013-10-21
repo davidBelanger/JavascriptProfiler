@@ -1,0 +1,48 @@
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+
+<script src="scripts/escodegen.browser.js"></script>
+<script src="scripts/esprima.js"></script>
+<script src="scripts/profiling.js"> </script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<body>
+
+<input type="text" id="clock">
+<script language=javascript>
+GlobalProfiler = new Profiler();
+window.gprof = GlobalProfiler;
+reporter = window.open("reporter.html");
+setInterval(function(){reporter.report = GlobalProfiler},1000);
+function foo(a, b) {
+    var fun_prof = GlobalProfiler.getProfile('foo');
+    fun_prof.start();
+    {
+        var profiler_tmp = a(b);
+        fun_prof.end();
+        return profiler_tmp;
+    }
+    fun_prof.end();
+}
+function bar(a) {
+    var fun_prof = GlobalProfiler.getProfile('bar');
+    fun_prof.start();
+    console.log(a);
+    fun_prof.end();
+}
+foo(bar, 2);
+setTimeout(function (foo) {
+    return function () {
+        var acb_name = 'setTimeout_line_13_col_0';
+        GlobalProfiler.pushAsParent(acb_name);
+        foo();
+        GlobalProfiler.popAsParent();
+    };
+}(bar), 1000);
+</script>
+
+<button onclick="int=window.clearInterval(int)">Stop</button>
+</body>
+</html>

@@ -40,7 +40,7 @@ class ProfilerFromSource{
 	public getCodeFile(): string
 	{
 		// return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nwindow.open(\"../reporter.html\")\n" + this.mod_code;
-		return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nwindow.open(\"../reporter.html\");\nsetInterval(function(){window.report = GlobalProfiler.getStringReport()},1000);\n" + this.mod_code;
+		return "GlobalProfiler = new Profiler();\nwindow.gprof = GlobalProfiler;\nreporter = window.open(\"reporter.html\");\nsetInterval(function(){reporter.report = GlobalProfiler},1000);\n" + this.mod_code;
 	}
 
 }
